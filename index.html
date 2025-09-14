@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SermoLink — App</title>
+<link rel="stylesheet" href="styles.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head><body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">SermoLink</div>
+      <div class="profile">
+        <div id="miniAvatar" class="avatar">U</div>
+        <div class="meta">
+          <div id="displayName">Not signed in</div>
+          <div id="displayEmail" class="muted"></div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="friends">Friends</button>
+        <button class="tab" data-tab="requests">Requests</button>
+        <button class="tab" data-tab="dms">DMs</button>
+      </div>
+      <div class="panel search-panel">
+        <input id="searchUser" placeholder="Add by username" />
+        <button id="sendRequest" class="btn">Send Request</button>
+      </div>
+      <div class="panel list-panel" id="listPanel"></div>
+      <div style="flex:1"></div>
+      <div class="panel bottom-panel">
+        <button id="profileBtn" class="btn">Edit Profile</button>
+        <button id="signOutBtn" class="btn">Sign Out</button>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="main-header"><div id="chatTitle">Select a conversation</div></header>
+      <section class="content">
+        <div class="conversation-list" id="convoList"></div>
+        <div class="chat-window">
+          <div id="messages" class="messages"></div>
+          <div class="composer">
+            <input id="messageInput" placeholder="Write a message..." />
+            <button id="sendMsg" class="btn">Send</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+<script src="app.js"></script>
+</body></html>

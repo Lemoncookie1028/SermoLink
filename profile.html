@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Profile — SermoLink</title>
+<link rel="stylesheet" href="styles.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head><body>
+  <div class="profile-page">
+    <h2 id="pTitle">Profile</h2>
+    <div class="profile-card">
+      <div class="avatar-large" id="pAvatar">U</div>
+      <div class="fields">
+        <div><label>Username (locked)</label><div id="pUsername" class="muted"></div></div>
+        <div><label>Display name</label><input id="pDisplay" /></div>
+        <div><label>Bio</label><textarea id="pBio" rows="3"></textarea></div>
+        <div><label>Choose avatar</label><div id="avatarChoices"></div></div>
+        <div style="margin-top:10px"><button id="saveProfile" class="btn">Save</button> <a id="back" href="index.html" class="btn">Back</a></div>
+      </div>
+    </div>
+  </div>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
+    authDomain: "sermolink.firebaseapp.com",
+    projectId: "sermolink",
+    storageBucket: "sermolink.firebasestorage.app",
+    messagingSenderId: "960323297325",
+    appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4",
+    measurementId: "G-XKNFX885XW"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const pAvatar = document.getElementById('pAvatar');
+  const pUsername = document.getElementById('pUsername');
+  const pDisplay = document.getElementById('pDisplay');
+  const pBio = document.getElementById('pBio');
+  const avatarChoices = document.getElementById('avatarChoices');
+  const saveBtn = document.getElementById('saveProfile');
+
+  const presets = ['😀','😎','🦊','🐼','🤖','🧙‍♂️','👾','🚀'];
+
+  let currentUser = null;
+  let editingUid = null;
+
+  function renderAvatars(selected){
+    avatarChoices.innerHTML='';
+    presets.forEach(p=>{
+      const b = document.createElement('button'); b.className='btn'; b.style.margin='4px'; b.textContent = p;
+      if(p===selected) b.style.outline = '3px solid rgba(37,99,235,0.6)';
+      b.onclick = ()=>{ pAvatar.textContent = p; avatarChoices.querySelectorAll('button').forEach(x=>x.style.outline=''); b.style.outline='3px solid rgba(37,99,235,0.6)'; };
+      avatarChoices.appendChild(b);
+    });
+  }
+
+  auth.onAuthStateChanged(async user=>{
+    if(!user){ window.location.href = 'home.html'; return; }
+    currentUser = user;
+    // If URL has ?uid=XYZ, view that user; otherwise edit self
+    const params = new URLSearchParams(location.search);
+    editingUid = params.get('uid') || currentUser.uid;
+    const doc = await db.collection('users').doc(editingUid).get();
+    const data = doc.exists ? doc.data() : {};
+    pUsername.textContent = data.username || (data.displayName||data.email||'').split(' ')[0].toLowerCase();
+    pDisplay.value = data.displayName || currentUser.displayName || '';
+    pBio.value = data.bio || '';
+    pAvatar.textContent = data.avatar || presets[0];
+    renderAvatars(data.avatar);
+    // if viewing someone else, disable inputs
+    if(editingUid !== currentUser.uid){
+      pDisplay.disabled = true; pBio.disabled = true; saveBtn.style.display = 'none'; avatarChoices.style.display = 'none';
+      document.getElementById('pTitle').textContent = 'View Profile';
+      document.getElementById('back').textContent = 'Back';
+    }
+  });
+
+  saveBtn.addEventListener('click', async ()=>{
+    const avatar = pAvatar.textContent || presets[0];
+    const displayName = pDisplay.value.trim() || currentUser.displayName || '';
+    const bio = pBio.value.trim() || '';
+    await db.collection('users').doc(currentUser.uid).set({ avatar, displayName, bio }, { merge: true });
+    alert('Profile saved');
+    window.location.href = 'index.html';
+  });
+</script>
+</body></html>

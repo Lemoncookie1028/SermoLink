@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SermoLink — Home</title>
+<link rel="stylesheet" href="styles.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body class="home-body">
+  <header class="topbar">
+    <div class="logo">SermoLink</div>
+    <div class="top-right">
+      <button id="authBtn" class="btn">Sign In</button>
+    </div>
+  </header>
+  <main class="home-main">
+    <h1>Welcome to SermoLink</h1>
+    <p class="lead">Connecting Conversations, Seamlessly.</p>
+    <button id="joinNow" class="cta">Join Now</button>
+  </main>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
+      authDomain: "sermolink.firebaseapp.com",
+      projectId: "sermolink",
+      storageBucket: "sermolink.firebasestorage.app",
+      messagingSenderId: "960323297325",
+      appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4",
+      measurementId: "G-XKNFX885XW"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const authBtn = document.getElementById('authBtn');
+    const joinNow = document.getElementById('joinNow');
+    auth.onAuthStateChanged(user => {
+      if(user){
+        authBtn.textContent = 'Sign Out (' + (user.displayName||user.email) + ')';
+        const uref = db.collection('users').doc(user.uid);
+        uref.set({
+          uid: user.uid,
+          displayName: user.displayName || '',
+          email: user.email || '',
+          username: (user.displayName||user.email||'').split(' ')[0].toLowerCase()
+        }, { merge: true }).then(()=>{ window.location.href = 'index.html'; });
+      } else { authBtn.textContent = 'Sign In'; }
+    });
+    authBtn.addEventListener('click', ()=>{ if(auth.currentUser) auth.signOut(); else { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(e=>alert(e.message)); } });
+    joinNow.addEventListener('click', ()=>{ const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(e=>alert(e.message)); });
+  </script>
+</body>
+</html>
