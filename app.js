@@ -215,7 +215,6 @@ if (sendRequestBtn) sendRequestBtn.addEventListener('click', async () => {
     await db.collection('friendRequests').add({
       sender: currentUser.uid,
       senderName: currentUser.displayName || '',
-      receiver: data.uid,
       receiverName: data.displayName || '',
       status: 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
