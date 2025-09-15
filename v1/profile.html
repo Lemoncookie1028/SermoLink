@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Profile — SermoLink</title><link rel="stylesheet" href="styles.css"/>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Profile — SermoLink</title>
+<link rel="stylesheet" href="styles.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -10,10 +10,10 @@
     <div class="profile-card">
       <div class="avatar-large" id="pAvatar">U</div>
       <div class="fields">
-        <div><label>Username</label><input id="pUsername" /></div>
-        <div id="usernameStatus" class="small muted"></div>
+        <div><label>Username (locked)</label><div id="pUsername" class="muted"></div></div>
         <div><label>Display name</label><input id="pDisplay" /></div>
         <div><label>Bio</label><textarea id="pBio" rows="3"></textarea></div>
+        <div><label>Choose avatar</label><div id="avatarChoices"></div></div>
         <div style="margin-top:10px"><button id="saveProfile" class="btn">Save</button> <a id="back" href="index.html" class="btn">Back</a></div>
       </div>
     </div>
@@ -34,54 +34,52 @@
 
   const pAvatar = document.getElementById('pAvatar');
   const pUsername = document.getElementById('pUsername');
-  const usernameStatus = document.getElementById('usernameStatus');
   const pDisplay = document.getElementById('pDisplay');
   const pBio = document.getElementById('pBio');
+  const avatarChoices = document.getElementById('avatarChoices');
   const saveBtn = document.getElementById('saveProfile');
+
+  const presets = ['😀','😎','🦊','🐼','🤖','🧙‍♂️','👾','🚀'];
 
   let currentUser = null;
   let editingUid = null;
-  let usernameLocked = false;
 
-  function setStatus(msg, ok){ usernameStatus.textContent = msg; usernameStatus.style.color = ok ? '#4caf50' : '#ff5252'; }
+  function renderAvatars(selected){
+    avatarChoices.innerHTML='';
+    presets.forEach(p=>{
+      const b = document.createElement('button'); b.className='btn'; b.style.margin='4px'; b.textContent = p;
+      if(p===selected) b.style.outline = '3px solid rgba(37,99,235,0.6)';
+      b.onclick = ()=>{ pAvatar.textContent = p; avatarChoices.querySelectorAll('button').forEach(x=>x.style.outline=''); b.style.outline='3px solid rgba(37,99,235,0.6)'; };
+      avatarChoices.appendChild(b);
+    });
+  }
 
   auth.onAuthStateChanged(async user=>{
     if(!user){ window.location.href = 'home.html'; return; }
     currentUser = user;
+    // If URL has ?uid=XYZ, view that user; otherwise edit self
     const params = new URLSearchParams(location.search);
     editingUid = params.get('uid') || currentUser.uid;
     const doc = await db.collection('users').doc(editingUid).get();
     const data = doc.exists ? doc.data() : {};
-    pAvatar.textContent = data.avatar || (data.displayName||'U').slice(0,1).toUpperCase();
-    pUsername.value = data.username || (data.displayName||currentUser.email||'').split(' ')[0].toLowerCase();
+    pUsername.textContent = data.username || (data.displayName||data.email||'').split(' ')[0].toLowerCase();
     pDisplay.value = data.displayName || currentUser.displayName || '';
     pBio.value = data.bio || '';
-    if(editingUid !== currentUser.uid){ pUsername.disabled=true; pDisplay.disabled=true; pBio.disabled=true; saveBtn.style.display='none'; }
-    if(data.username){ usernameLocked = true; pUsername.disabled = editingUid !== currentUser.uid; if(editingUid===currentUser.uid) setStatus('Username is set and locked', true); }
-  });
-
-  let checkTimer = null;
-  pUsername.addEventListener('input', ()=>{
-    if(usernameLocked) return;
-    const v = (pUsername.value||'').trim().toLowerCase();
-    usernameStatus.textContent = '';
-    if(checkTimer) clearTimeout(checkTimer);
-    if(!v) return setStatus('Enter a username', false);
-    checkTimer = setTimeout(async ()=>{
-      const snap = await db.collection('users').where('username','==', v).get();
-      if(!snap.empty){ setStatus('Username taken', false); } else { setStatus('Username available', true); }
-    }, 600);
+    pAvatar.textContent = data.avatar || presets[0];
+    renderAvatars(data.avatar);
+    // if viewing someone else, disable inputs
+    if(editingUid !== currentUser.uid){
+      pDisplay.disabled = true; pBio.disabled = true; saveBtn.style.display = 'none'; avatarChoices.style.display = 'none';
+      document.getElementById('pTitle').textContent = 'View Profile';
+      document.getElementById('back').textContent = 'Back';
+    }
   });
 
   saveBtn.addEventListener('click', async ()=>{
-    if(!currentUser) return alert('Not signed in');
-    const uname = (pUsername.value||'').trim().toLowerCase();
-    if(!uname) return alert('Choose a username');
-    if(!usernameLocked){
-      const snap = await db.collection('users').where('username','==', uname).get();
-      if(!snap.empty) return alert('Username already taken');
-    }
-    await db.collection('users').doc(currentUser.uid).set({ username: uname, displayName: pDisplay.value||'', bio: pBio.value||'', avatar: pAvatar.textContent||'' }, { merge: true });
+    const avatar = pAvatar.textContent || presets[0];
+    const displayName = pDisplay.value.trim() || currentUser.displayName || '';
+    const bio = pBio.value.trim() || '';
+    await db.collection('users').doc(currentUser.uid).set({ avatar, displayName, bio }, { merge: true });
     alert('Profile saved');
     window.location.href = 'index.html';
   });

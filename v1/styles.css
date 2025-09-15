@@ -5,7 +5,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#071129 0%, #07
 .sidebar{width:320px;background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:12px}
 .brand{font-weight:800;font-size:20px}
 .profile{display:flex;gap:8px;align-items:center}
-.avatar{width:44px;height:44px;border-radius:8px;background:#1b2a42;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;cursor:pointer}
+.avatar{width:44px;height:44px;border-radius:8px;background:#1b2a42;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
 .panel{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px}
 .btn{background:var(--accent);padding:8px 10px;border-radius:8px;border:none;color:white;cursor:pointer}
 .muted{color:var(--muted);font-size:13px}
@@ -14,7 +14,6 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#071129 0%, #07
 .content{display:flex;flex:1;gap:12px;padding:12px}
 .conversation-list{width:320px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:8px;border-radius:8px;overflow:auto}
 .convo-item{padding:8px;border-radius:8px;display:flex;align-items:center;gap:8px;cursor:pointer}
-.unread-dot{width:10px;height:10px;border-radius:50%;background:#2563eb;margin-left:8px}
 .chat-window{flex:1;display:flex;flex-direction:column;background:rgba(255,255,255,0.01);border-radius:8px;overflow:hidden}
 .messages{flex:1;padding:12px;overflow:auto}
 .msg{max-width:70%;padding:10px;border-radius:12px;margin-bottom:8px}

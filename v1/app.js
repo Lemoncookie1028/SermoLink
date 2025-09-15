@@ -1,4 +1,4 @@
-// SermoLink app.js (profiles clickable, username check, unread badges)
+// SermoLink app.js (adds simple profile view link)
 const firebaseConfig = {
   apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
   authDomain: "sermolink.firebaseapp.com",
@@ -11,6 +11,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// UI refs
 const displayNameEl = document.getElementById('displayName');
 const displayEmailEl = document.getElementById('displayEmail');
 const miniAvatar = document.getElementById('miniAvatar');
@@ -25,12 +27,16 @@ const messagesEl = document.getElementById('messages');
 const messageInput = document.getElementById('messageInput');
 const sendMsgBtn = document.getElementById('sendMsg');
 const chatTitle = document.getElementById('chatTitle');
-const reqCountEl = document.getElementById('reqCount');
+
 let currentUser = null;
 let activeChatId = null;
 let messagesUnsub = null;
+
+// Helpers
 function chatIdFor(a,b){ return [a,b].sort().join('_'); }
 function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Auth
 auth.onAuthStateChanged(async user=>{
   currentUser = user;
   if(!user){
@@ -40,18 +46,20 @@ auth.onAuthStateChanged(async user=>{
   displayNameEl.textContent = user.displayName || 'User';
   displayEmailEl.textContent = user.email || '';
   miniAvatar.textContent = (user.displayName||'U').slice(0,1).toUpperCase();
-  miniAvatar.title = 'Open profile';
-  miniAvatar.addEventListener('click', ()=>{ window.open('profile.html?uid='+currentUser.uid,'_blank'); });
-  profileBtn.addEventListener('click', ()=>{ window.location.href = 'profile.html'; });
   const uref = db.collection('users').doc(user.uid);
   await uref.set({ uid: user.uid, displayName: user.displayName || '', email: user.email || '', username: (user.displayName||user.email||'').split(' ')[0].toLowerCase() }, { merge: true });
   startFriendRequestsListener();
   startFriendsListener();
   startDmsListener();
 });
+
+// buttons
 if(signOutBtn) signOutBtn.addEventListener('click', ()=>auth.signOut());
+if(profileBtn) profileBtn.addEventListener('click', ()=>{ window.location.href = 'profile.html'; });
 tabs.forEach(t=>t.addEventListener('click', ()=>{ tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active'); renderActiveTab(t.dataset.tab); }));
-function renderActiveTab(tab){ listPanel.innerHTML = '<div class="small muted">Loading...</div>'; updateRequestCount(); }
+function renderActiveTab(tab){ listPanel.innerHTML = '<div class="small muted">Loading...</div>'; }
+
+// Send friend request by username
 sendRequestBtn.addEventListener('click', async ()=>{
   const q = (searchUser.value||'').trim().toLowerCase();
   if(!q) return alert('Enter username');
@@ -64,11 +72,14 @@ sendRequestBtn.addEventListener('click', async ()=>{
   alert('Friend request sent to ' + (data.displayName || data.username || data.uid));
   searchUser.value='';
 });
+
+// Friend requests listener
+let frUnsub = null;
 function startFriendRequestsListener(){
   if(!currentUser) return;
-  db.collectionGroup('friendRequests').where('receiver','==', currentUser.uid)
+  if(frUnsub) frUnsub();
+  frUnsub = db.collectionGroup('friendRequests').where('receiver','==', currentUser.uid)
     .onSnapshot(snap=>{
-      updateRequestCount(snap.size);
       if(document.querySelector('.tab.active').dataset.tab === 'requests') listPanel.innerHTML='';
       snap.forEach(d=>{
         const r = d.data();
@@ -84,7 +95,8 @@ function startFriendRequestsListener(){
       if(snap.empty && document.querySelector('.tab.active').dataset.tab === 'requests') listPanel.innerHTML = '<div class="small muted">No requests</div>';
     });
 }
-function updateRequestCount(n){ if(typeof n === 'undefined') { db.collectionGroup('friendRequests').where('receiver','==', currentUser.uid).get().then(s=> reqCountEl.textContent = s.size ? '('+s.size+')' : ''); } else { reqCountEl.textContent = n ? '('+n+')' : ''; } }
+
+// Accept / Decline
 async function acceptRequest(ref){
   const r = (await ref.get()).data();
   if(!r) return;
@@ -98,18 +110,20 @@ async function acceptRequest(ref){
   alert('Friend added');
 }
 async function declineRequest(ref){ await ref.delete(); alert('Request declined'); }
+
+// Friends listener
+let friendsUnsub = null;
 function startFriendsListener(){
   if(!currentUser) return;
-  db.collection('users').doc(currentUser.uid).collection('friends')
+  if(friendsUnsub) friendsUnsub();
+  friendsUnsub = db.collection('users').doc(currentUser.uid).collection('friends')
     .onSnapshot(snap=>{
       if(document.querySelector('.tab.active').dataset.tab === 'friends') listPanel.innerHTML='';
       convoList.innerHTML='';
-      snap.forEach(async d=>{
+      snap.forEach(d=>{
         const f = d.data();
         const div = document.createElement('div'); div.className='convo-item';
         div.innerHTML = `<div style="flex:1"><strong class='friend-name' data-uid='${f.uid}'>${escapeHtml(f.displayName)}</strong><div class="muted">${escapeHtml(f.username||'')}</div></div>`;
-        const unreadDot = document.createElement('span'); unreadDot.className='unread-dot'; unreadDot.style.display='none';
-        div.appendChild(unreadDot);
         const msgBtn = document.createElement('button'); msgBtn.className='btn'; msgBtn.textContent='Message';
         msgBtn.onclick = ()=>openDmWith(f.uid, f.displayName);
         div.appendChild(msgBtn);
@@ -117,22 +131,19 @@ function startFriendsListener(){
         const cdiv = div.cloneNode(true);
         cdiv.onclick = ()=>openDmWith(f.uid, f.displayName);
         convoList.appendChild(cdiv);
-        const id = chatIdFor(currentUser.uid, f.uid);
-        const dref = db.collection('dms').doc(id);
-        const dsnap = await dref.get();
-        if(dsnap.exists){
-          const data = dsnap.data();
-          const unread = (data.unread && data.unread[currentUser.uid]) || 0;
-          if(unread>0){ unreadDot.style.display='inline-block'; }
-        }
       });
       if(snap.empty && document.querySelector('.tab.active').dataset.tab === 'friends') listPanel.innerHTML = '<div class="small muted">No friends yet</div>';
+      // attach click to open profile when clicking friend name
       document.querySelectorAll('.friend-name').forEach(el=> el.addEventListener('click', ()=>{ const uid = el.dataset.uid; window.open('profile.html?uid='+uid,'_blank'); }));
     });
 }
+
+// DMs listener
+let dmsUnsub = null;
 function startDmsListener(){
   if(!currentUser) return;
-  db.collection('dms').where('participants','array-contains', currentUser.uid)
+  if(dmsUnsub) dmsUnsub();
+  dmsUnsub = db.collection('dms').where('participants','array-contains', currentUser.uid)
     .onSnapshot(snap=>{
       if(document.querySelector('.tab.active').dataset.tab === 'dms') listPanel.innerHTML='';
       snap.forEach(d=>{
@@ -149,15 +160,19 @@ function startDmsListener(){
       if(snap.empty && document.querySelector('.tab.active').dataset.tab === 'dms') listPanel.innerHTML = '<div class="small muted">No DMs yet</div>';
     });
 }
+
+// Open DM with friend (ensure dms doc)
 async function openDmWith(uid, name){
   const id = chatIdFor(currentUser.uid, uid);
   const dref = db.collection('dms').doc(id);
   const dsnap = await dref.get();
   if(!dsnap.exists){
-    await dref.set({ id, participants: [currentUser.uid, uid], title: name, lastMessage: '', lastUpdated: firebase.firestore.FieldValue.serverTimestamp(), unread: { } });
+    await dref.set({ id, participants: [currentUser.uid, uid], title: name, lastMessage: '', lastUpdated: firebase.firestore.FieldValue.serverTimestamp() });
   }
   openChat(id, uid, name);
 }
+
+// Open chat: subscribe to messages
 async function openChat(dmid, otherUid, otherName){
   if(messagesUnsub) messagesUnsub();
   activeChatId = dmid;
@@ -176,6 +191,8 @@ async function openChat(dmid, otherUid, otherName){
   });
   try{ await db.collection('dms').doc(dmid).update({ ['unread.'+currentUser.uid]: 0, lastRead: firebase.firestore.FieldValue.serverTimestamp() }); }catch(e){}
 }
+
+// send message
 sendMsgBtn.addEventListener('click', async ()=>{
   const text = (messageInput.value||'').trim();
   if(!text || !activeChatId) return;
@@ -191,4 +208,6 @@ sendMsgBtn.addEventListener('click', async ()=>{
   }
   messageInput.value='';
 });
+
+// initial render active tab
 renderActiveTab('friends');
