@@ -30,3 +30,6 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#071129 0%, #07
 .profile-card{display:flex;gap:20px;background:rgba(255,255,255,0.02);padding:20px;border-radius:10px}
 .avatar-large{width:96px;height:96px;border-radius:12px;background:#1b2a42;display:flex;align-items:center;justify-content:center;font-size:36px}
 .small{font-size:13px;color:var(--muted)}
+.logo {position: absolute;top: 10px;left: 10px;}
+.logo img {height: 80px;width: auto;}
+.top-right {position: absolute;top: 10px;right: 10px;}
