@@ -213,7 +213,7 @@ if (sendRequestBtn) sendRequestBtn.addEventListener('click', async () => {
     if (data.uid === currentUser.uid) return alert('Cannot add yourself');
 
     await db.collection('friendRequests').add({
-      sender: currentUser.uid,
+      sender: currentUser,
       senderName: currentUser.displayName || '',
       receiverName: data.displayName || '',
       status: 'pending',
