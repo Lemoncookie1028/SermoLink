@@ -1,5 +1,5 @@
 :root{--bg:#0b1220;--panel:#0f1724;--accent:#2563eb;--muted:#9aa4b2}
-*{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+*{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,-apple-system,Helvetica,Arial}
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#071129 0%, #071521 100%);color:#e6eef8}
 .app{display:flex;height:100vh}
 .sidebar{width:320px;background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:12px}
@@ -22,11 +22,17 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#071129 0%, #07
 .msg.them{background:rgba(255,255,255,0.03);color:var(--muted)}
 .composer{display:flex;padding:10px;border-top:1px solid rgba(255,255,255,0.03);gap:8px}
 .composer input{flex:1;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit}
+
+/* Home */
 .home-body{display:flex;flex-direction:column;min-height:100vh}
 .topbar{display:flex;justify-content:space-between;padding:12px 20px;background:var(--panel)}
 .home-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
 .cta{background:#6a0dad;padding:12px 20px;border-radius:8px;border:none;color:white;cursor:pointer}
+
+/* Profile page */
 .profile-page{padding:20px;display:flex;justify-content:center}
 .profile-card{display:flex;gap:20px;background:rgba(255,255,255,0.02);padding:20px;border-radius:10px}
 .avatar-large{width:96px;height:96px;border-radius:12px;background:#1b2a42;display:flex;align-items:center;justify-content:center;font-size:36px}
+
+/* small text */
 .small{font-size:13px;color:var(--muted)}

@@ -1,12 +1,10 @@
 <!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SermoLink — Home</title>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SermoLink — Home</title>
 <link rel="stylesheet" href="styles.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-</head>
-<body class="home-body">
+</head><body class="home-body">
   <header class="topbar">
     <div class="logo">SermoLink</div>
     <div class="top-right">
@@ -43,5 +41,4 @@
     authBtn.addEventListener('click', ()=>{ if(auth.currentUser) auth.signOut(); else { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(e=>alert(e.message)); } });
     joinNow.addEventListener('click', ()=>{ const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(e=>alert(e.message)); });
   </script>
-</body>
-</html>
+</body></html>

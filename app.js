@@ -1,4 +1,4 @@
-// SermoLink app.js (profiles clickable, username check, unread badges)
+// Fixed SermoLink app.js - tabs fixed + avatar presets (20)
 const firebaseConfig = {
   apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
   authDomain: "sermolink.firebaseapp.com",
@@ -11,12 +11,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// UI refs - safe selectors (some pages may not have all elements)
 const displayNameEl = document.getElementById('displayName');
 const displayEmailEl = document.getElementById('displayEmail');
 const miniAvatar = document.getElementById('miniAvatar');
 const profileBtn = document.getElementById('profileBtn');
 const signOutBtn = document.getElementById('signOutBtn');
-const tabs = Array.from(document.querySelectorAll('.tab'));
+const tabs = Array.from(document.querySelectorAll('.tab') || []);
 const listPanel = document.getElementById('listPanel');
 const searchUser = document.getElementById('searchUser');
 const sendRequestBtn = document.getElementById('sendRequest');
@@ -26,145 +28,174 @@ const messageInput = document.getElementById('messageInput');
 const sendMsgBtn = document.getElementById('sendMsg');
 const chatTitle = document.getElementById('chatTitle');
 const reqCountEl = document.getElementById('reqCount');
+
 let currentUser = null;
 let activeChatId = null;
 let messagesUnsub = null;
+let listeners = {};
+
+// helpers
 function chatIdFor(a,b){ return [a,b].sort().join('_'); }
 function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// render helpers for tabs
+function renderFriendsTab(){
+  if(!currentUser) return;
+  listPanel.innerHTML = '<div class="small muted">Loading friends...</div>';
+  db.collection('users').doc(currentUser.uid).collection('friends').get().then(snap=>{
+    listPanel.innerHTML='';
+    if(snap.empty) return listPanel.innerHTML='<div class="small muted">No friends yet</div>';
+    snap.forEach(d=>{
+      const f = d.data();
+      const div = document.createElement('div'); div.className='convo-item';
+      div.innerHTML = `<div style="flex:1"><strong class='friend-name' data-uid='${f.uid}'>${escapeHtml(f.displayName)}</strong><div class="muted">${escapeHtml(f.username||'')}</div></div>`;
+      const unread = document.createElement('span'); unread.className='unread-dot'; unread.style.display='none';
+      div.appendChild(unread);
+      const msgBtn = document.createElement('button'); msgBtn.className='btn'; msgBtn.textContent='Message';
+      msgBtn.onclick = ()=>openDmWith(f.uid, f.displayName);
+      div.appendChild(msgBtn);
+      listPanel.appendChild(div);
+      // attach click for profile
+      div.querySelector('.friend-name').addEventListener('click', e=> window.open('profile.html?uid='+f.uid,'_blank'));
+      // check unread
+      const id = chatIdFor(currentUser.uid, f.uid);
+      db.collection('dms').doc(id).get().then(dsnap=>{
+        if(dsnap.exists){ const data = dsnap.data(); const u = (data.unread && data.unread[currentUser.uid])||0; if(u>0) unread.style.display='inline-block'; }
+      });
+    });
+  }).catch(e=> listPanel.innerHTML = '<div class="small muted">Error loading friends</div>');
+}
+
+function renderRequestsTab(){
+  if(!currentUser) return;
+  listPanel.innerHTML = '<div class="small muted">Loading requests...</div>';
+  db.collectionGroup('friendRequests').where('receiver','==', currentUser.uid).get().then(snap=>{
+    listPanel.innerHTML='';
+    if(snap.empty) return listPanel.innerHTML='<div class="small muted">No requests</div>';
+    snap.forEach(d=>{
+      const r = d.data();
+      const div = document.createElement('div'); div.className='convo-item';
+      div.innerHTML = `<div style="flex:1"><strong>${escapeHtml(r.senderName)}</strong><div class="muted">${escapeHtml(r.sender)}</div></div>`;
+      const accept = document.createElement('button'); accept.className='btn'; accept.textContent='Accept';
+      const decline = document.createElement('button'); decline.className='btn'; decline.style.marginLeft='6px'; decline.textContent='Decline';
+      accept.onclick = ()=>acceptRequest(d.ref);
+      decline.onclick = ()=>declineRequest(d.ref);
+      div.appendChild(accept); div.appendChild(decline);
+      listPanel.appendChild(div);
+    });
+  }).catch(e=> listPanel.innerHTML = '<div class="small muted">Error loading requests</div>');
+}
+
+function renderDmsTab(){
+  if(!currentUser) return;
+  listPanel.innerHTML = '<div class="small muted">Loading DMs...</div>';
+  db.collection('dms').where('participants','array-contains', currentUser.uid).get().then(snap=>{
+    listPanel.innerHTML='';
+    if(snap.empty) return listPanel.innerHTML = '<div class="small muted">No DMs yet</div>';
+    snap.forEach(d=>{
+      const data = d.data();
+      const other = data.participants.find(p=>p!==currentUser.uid);
+      const div = document.createElement('div'); div.className='convo-item';
+      div.innerHTML = `<div style="flex:1"><strong>${escapeHtml(data.title||other)}</strong><div class="muted">${escapeHtml(data.lastMessage||'')}</div></div>`;
+      div.onclick = ()=>openChat(d.id, other);
+      listPanel.appendChild(div);
+    });
+  }).catch(e=> listPanel.innerHTML = '<div class="small muted">Error loading DMs</div>');
+}
+
+// tab switching
+tabs.forEach(t=> t.addEventListener('click', ()=>{
+  tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  const tab = t.dataset.tab;
+  if(tab==='friends') renderFriendsTab();
+  if(tab==='requests') renderRequestsTab();
+  if(tab==='dms') renderDmsTab();
+}));
+
+// basic auth + setup
 auth.onAuthStateChanged(async user=>{
   currentUser = user;
   if(!user){
     if(!location.pathname.endsWith('home.html')) window.location.href = 'home.html';
     return;
   }
-  displayNameEl.textContent = user.displayName || 'User';
-  displayEmailEl.textContent = user.email || '';
-  miniAvatar.textContent = (user.displayName||'U').slice(0,1).toUpperCase();
-  miniAvatar.title = 'Open profile';
-  miniAvatar.addEventListener('click', ()=>{ window.open('profile.html?uid='+currentUser.uid,'_blank'); });
-  profileBtn.addEventListener('click', ()=>{ window.location.href = 'profile.html'; });
-  const uref = db.collection('users').doc(user.uid);
-  await uref.set({ uid: user.uid, displayName: user.displayName || '', email: user.email || '', username: (user.displayName||user.email||'').split(' ')[0].toLowerCase() }, { merge: true });
-  startFriendRequestsListener();
-  startFriendsListener();
-  startDmsListener();
+  if(displayNameEl) displayNameEl.textContent = user.displayName || 'User';
+  if(displayEmailEl) displayEmailEl.textContent = user.email || '';
+  if(miniAvatar) miniAvatar.textContent = (user.displayName||'U').slice(0,1).toUpperCase();
+  if(miniAvatar) miniAvatar.addEventListener('click', ()=> window.open('profile.html?uid='+currentUser.uid,'_blank'));
+  if(profileBtn) profileBtn.addEventListener('click', ()=> window.location.href = 'profile.html');
+  try{
+    await db.collection('users').doc(user.uid).set({ uid: user.uid, displayName: user.displayName||'', email: user.email||'', username: (user.displayName||user.email||'').split(' ')[0].toLowerCase() }, { merge: true });
+  }catch(e){ console.error(e); }
+  // initial tab render
+  const active = document.querySelector('.tab.active');
+  if(active){
+    if(active.dataset.tab==='friends') renderFriendsTab();
+    if(active.dataset.tab==='requests') renderRequestsTab();
+    if(active.dataset.tab==='dms') renderDmsTab();
+  }
+  // update req count realtime
+  listeners.fr = db.collectionGroup('friendRequests').where('receiver','==', currentUser.uid).onSnapshot(snap=>{
+    if(reqCountEl) reqCountEl.textContent = snap.size ? '('+snap.size+')' : '';
+  });
 });
-if(signOutBtn) signOutBtn.addEventListener('click', ()=>auth.signOut());
-tabs.forEach(t=>t.addEventListener('click', ()=>{ tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active'); renderActiveTab(t.dataset.tab); }));
-function renderActiveTab(tab){ listPanel.innerHTML = '<div class="small muted">Loading...</div>'; updateRequestCount(); }
-sendRequestBtn.addEventListener('click', async ()=>{
+
+// send friend request
+if(sendRequestBtn) sendRequestBtn.addEventListener('click', async ()=>{
   const q = (searchUser.value||'').trim().toLowerCase();
   if(!q) return alert('Enter username');
-  const found = await db.collection('users').where('username','==', q).get();
-  if(found.empty) return alert('User not found');
-  const doc = found.docs[0]; const data = doc.data();
-  if(data.uid === currentUser.uid) return alert('Cannot add yourself');
-  const reqRef = db.collection('users').doc(data.uid).collection('friendRequests').doc();
-  await reqRef.set({ sender: currentUser.uid, senderName: currentUser.displayName || '', receiver: data.uid, receiverName: data.displayName || '', status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-  alert('Friend request sent to ' + (data.displayName || data.username || data.uid));
-  searchUser.value='';
+  try{
+    const found = await db.collection('users').where('username','==', q).get();
+    if(found.empty) return alert('User not found');
+    const doc = found.docs[0]; const data = doc.data();
+    if(data.uid === currentUser.uid) return alert('Cannot add yourself');
+    const reqRef = db.collection('users').doc(data.uid).collection('friendRequests').doc();
+    await reqRef.set({ sender: currentUser.uid, senderName: currentUser.displayName || '', receiver: data.uid, receiverName: data.displayName || '', status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    alert('Friend request sent to ' + (data.displayName || data.username || data.uid));
+    searchUser.value='';
+    // if requests tab active, refresh
+    if(document.querySelector('.tab.active').dataset.tab === 'requests') renderRequestsTab();
+  }catch(e){ alert('Error sending request'); }
 });
-function startFriendRequestsListener(){
-  if(!currentUser) return;
-  db.collectionGroup('friendRequests').where('receiver','==', currentUser.uid)
-    .onSnapshot(snap=>{
-      updateRequestCount(snap.size);
-      if(document.querySelector('.tab.active').dataset.tab === 'requests') listPanel.innerHTML='';
-      snap.forEach(d=>{
-        const r = d.data();
-        const div = document.createElement('div'); div.className='convo-item';
-        div.innerHTML = `<div style="flex:1"><strong>${escapeHtml(r.senderName)}</strong><div class="muted">${escapeHtml(r.sender)}</div></div>`;
-        const accept = document.createElement('button'); accept.className='btn'; accept.textContent='Accept';
-        const decline = document.createElement('button'); decline.className='btn'; decline.style.marginLeft='6px'; decline.textContent='Decline';
-        accept.onclick = ()=>acceptRequest(d.ref);
-        decline.onclick = ()=>declineRequest(d.ref);
-        div.appendChild(accept); div.appendChild(decline);
-        if(document.querySelector('.tab.active').dataset.tab === 'requests') listPanel.appendChild(div);
-      });
-      if(snap.empty && document.querySelector('.tab.active').dataset.tab === 'requests') listPanel.innerHTML = '<div class="small muted">No requests</div>';
-    });
-}
-function updateRequestCount(n){ if(typeof n === 'undefined') { db.collectionGroup('friendRequests').where('receiver','==', currentUser.uid).get().then(s=> reqCountEl.textContent = s.size ? '('+s.size+')' : ''); } else { reqCountEl.textContent = n ? '('+n+')' : ''; } }
+
+// accept/decline helpers
 async function acceptRequest(ref){
-  const r = (await ref.get()).data();
-  if(!r) return;
-  const sender = r.sender; const receiver = r.receiver;
-  const sdoc = await db.collection('users').doc(sender).get();
-  const rdoc = await db.collection('users').doc(receiver).get();
-  const s = sdoc.data(); const rr = rdoc.data();
-  await db.collection('users').doc(sender).collection('friends').doc(receiver).set({ uid: receiver, displayName: rr.displayName||'', username: rr.username||'' });
-  await db.collection('users').doc(receiver).collection('friends').doc(sender).set({ uid: sender, displayName: s.displayName||'', username: s.username||'' });
-  await ref.delete();
-  alert('Friend added');
+  try{
+    const r = (await ref.get()).data();
+    if(!r) return;
+    const sender = r.sender; const receiver = r.receiver;
+    const sdoc = await db.collection('users').doc(sender).get();
+    const rdoc = await db.collection('users').doc(receiver).get();
+    const s = sdoc.data(); const rr = rdoc.data();
+    await db.collection('users').doc(sender).collection('friends').doc(receiver).set({ uid: receiver, displayName: rr.displayName||'', username: rr.username||'' });
+    await db.collection('users').doc(receiver).collection('friends').doc(sender).set({ uid: sender, displayName: s.displayName||'', username: s.username||'' });
+    await ref.delete();
+    alert('Friend added');
+    renderFriendsTab();
+    renderRequestsTab();
+  }catch(e){ alert('Error accepting'); }
 }
-async function declineRequest(ref){ await ref.delete(); alert('Request declined'); }
-function startFriendsListener(){
-  if(!currentUser) return;
-  db.collection('users').doc(currentUser.uid).collection('friends')
-    .onSnapshot(snap=>{
-      if(document.querySelector('.tab.active').dataset.tab === 'friends') listPanel.innerHTML='';
-      convoList.innerHTML='';
-      snap.forEach(async d=>{
-        const f = d.data();
-        const div = document.createElement('div'); div.className='convo-item';
-        div.innerHTML = `<div style="flex:1"><strong class='friend-name' data-uid='${f.uid}'>${escapeHtml(f.displayName)}</strong><div class="muted">${escapeHtml(f.username||'')}</div></div>`;
-        const unreadDot = document.createElement('span'); unreadDot.className='unread-dot'; unreadDot.style.display='none';
-        div.appendChild(unreadDot);
-        const msgBtn = document.createElement('button'); msgBtn.className='btn'; msgBtn.textContent='Message';
-        msgBtn.onclick = ()=>openDmWith(f.uid, f.displayName);
-        div.appendChild(msgBtn);
-        if(document.querySelector('.tab.active').dataset.tab === 'friends') listPanel.appendChild(div);
-        const cdiv = div.cloneNode(true);
-        cdiv.onclick = ()=>openDmWith(f.uid, f.displayName);
-        convoList.appendChild(cdiv);
-        const id = chatIdFor(currentUser.uid, f.uid);
-        const dref = db.collection('dms').doc(id);
-        const dsnap = await dref.get();
-        if(dsnap.exists){
-          const data = dsnap.data();
-          const unread = (data.unread && data.unread[currentUser.uid]) || 0;
-          if(unread>0){ unreadDot.style.display='inline-block'; }
-        }
-      });
-      if(snap.empty && document.querySelector('.tab.active').dataset.tab === 'friends') listPanel.innerHTML = '<div class="small muted">No friends yet</div>';
-      document.querySelectorAll('.friend-name').forEach(el=> el.addEventListener('click', ()=>{ const uid = el.dataset.uid; window.open('profile.html?uid='+uid,'_blank'); }));
-    });
-}
-function startDmsListener(){
-  if(!currentUser) return;
-  db.collection('dms').where('participants','array-contains', currentUser.uid)
-    .onSnapshot(snap=>{
-      if(document.querySelector('.tab.active').dataset.tab === 'dms') listPanel.innerHTML='';
-      snap.forEach(d=>{
-        const data = d.data();
-        const other = data.participants.find(p=>p!==currentUser.uid);
-        const div = document.createElement('div'); div.className='convo-item';
-        div.innerHTML = `<div style="flex:1"><strong>${escapeHtml(data.title||other)}</strong><div class="muted">${escapeHtml(data.lastMessage||'')}</div></div>`;
-        div.onclick = ()=>openChat(d.id, other);
-        if(document.querySelector('.tab.active').dataset.tab === 'dms') listPanel.appendChild(div);
-        const cdiv = div.cloneNode(true); cdiv.onclick = ()=>openChat(d.id, other);
-        const exists = Array.from(convoList.children).some(c=>c.textContent.includes(data.title||other));
-        if(!exists) convoList.appendChild(cdiv);
-      });
-      if(snap.empty && document.querySelector('.tab.active').dataset.tab === 'dms') listPanel.innerHTML = '<div class="small muted">No DMs yet</div>';
-    });
-}
+async function declineRequest(ref){ await ref.delete(); alert('Request declined'); renderRequestsTab(); }
+
+// DMs - open/create
 async function openDmWith(uid, name){
   const id = chatIdFor(currentUser.uid, uid);
   const dref = db.collection('dms').doc(id);
   const dsnap = await dref.get();
   if(!dsnap.exists){
-    await dref.set({ id, participants: [currentUser.uid, uid], title: name, lastMessage: '', lastUpdated: firebase.firestore.FieldValue.serverTimestamp(), unread: { } });
+    await dref.set({ id, participants: [currentUser.uid, uid], title: name, lastMessage: '', lastUpdated: firebase.firestore.FieldValue.serverTimestamp(), unread: {} });
   }
   openChat(id, uid, name);
 }
+
 async function openChat(dmid, otherUid, otherName){
   if(messagesUnsub) messagesUnsub();
   activeChatId = dmid;
-  chatTitle.textContent = otherName || dmid;
-  messagesEl.innerHTML = '<div class="small muted">Loading messages...</div>';
+  if(chatTitle) chatTitle.textContent = otherName || dmid;
+  if(messagesEl) messagesEl.innerHTML = '<div class="small muted">Loading messages...</div>';
   const msgsCol = db.collection('dms').doc(dmid).collection('messages');
   messagesUnsub = msgsCol.orderBy('createdAt').onSnapshot(snap=>{
+    if(!messagesEl) return;
     messagesEl.innerHTML='';
     snap.forEach(m=>{
       const md = m.data();
@@ -176,7 +207,9 @@ async function openChat(dmid, otherUid, otherName){
   });
   try{ await db.collection('dms').doc(dmid).update({ ['unread.'+currentUser.uid]: 0, lastRead: firebase.firestore.FieldValue.serverTimestamp() }); }catch(e){}
 }
-sendMsgBtn.addEventListener('click', async ()=>{
+
+// send message
+if(sendMsgBtn) sendMsgBtn.addEventListener('click', async ()=>{
   const text = (messageInput.value||'').trim();
   if(!text || !activeChatId) return;
   const msgsCol = db.collection('dms').doc(activeChatId).collection('messages');
@@ -189,6 +222,8 @@ sendMsgBtn.addEventListener('click', async ()=>{
     data.participants.forEach(p=>{ if(p!==currentUser.uid) unread[p] = (unread[p]||0)+1; });
     await dref.update({ lastMessage: text, lastUpdated: firebase.firestore.FieldValue.serverTimestamp(), unread });
   }
-  messageInput.value='';
+  if(messageInput) messageInput.value='';
 });
-renderActiveTab('friends');
+
+// cleanup on unload
+window.addEventListener('beforeunload', ()=>{ Object.values(listeners).forEach(u=>u && typeof u === 'function' && u()); });

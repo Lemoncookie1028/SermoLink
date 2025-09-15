@@ -1,27 +1,23 @@
 <!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Profile — SermoLink</title>
-<link rel="stylesheet" href="styles.css"/>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Profile — SermoLink</title><link rel="stylesheet" href="styles.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-</head>
-<body>
+</head><body>
   <div class="profile-page">
     <h2 id="pTitle">Profile</h2>
     <div class="profile-card">
       <div class="avatar-large" id="pAvatar">U</div>
       <div class="fields">
-        <div><label>Username (locked once set)</label><input id="pUsername" /></div>
+        <div><label>Username</label><input id="pUsername" /></div>
         <div id="usernameStatus" class="small muted"></div>
         <div><label>Display name</label><input id="pDisplay" /></div>
         <div><label>Bio</label><textarea id="pBio" rows="3"></textarea></div>
-        <div><label>Choose avatar</label><div id="avatarChoices" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px"></div></div>
-        <div style="margin-top:12px"><button id="saveProfile" class="btn">Save</button> <a id="back" href="index.html" class="btn">Back</a></div>
+        <div style="margin-top:10px"><button id="saveProfile" class="btn">Save</button> <a id="back" href="index.html" class="btn">Back</a></div>
       </div>
     </div>
   </div>
-
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
@@ -42,25 +38,12 @@
   const pDisplay = document.getElementById('pDisplay');
   const pBio = document.getElementById('pBio');
   const saveBtn = document.getElementById('saveProfile');
-  const avatarChoices = document.getElementById('avatarChoices');
-
-  const presets = ['😀','😎','🦊','🐼','🤖','🧙‍♂️','👾','🚀','🐱','🐶','🦁','🐵','🐸','🐙','🌟','🔥','🍀','🎮','🎧','🛰️'];
 
   let currentUser = null;
   let editingUid = null;
   let usernameLocked = false;
 
   function setStatus(msg, ok){ usernameStatus.textContent = msg; usernameStatus.style.color = ok ? '#4caf50' : '#ff5252'; }
-
-  function renderAvatars(selected){
-    avatarChoices.innerHTML='';
-    presets.forEach(p=>{
-      const b = document.createElement('button'); b.className='btn'; b.style.padding='8px'; b.textContent = p;
-      if(p===selected) b.style.outline='3px solid rgba(37,99,235,0.6)';
-      b.onclick = ()=>{ pAvatar.textContent = p; avatarChoices.querySelectorAll('button').forEach(x=>x.style.outline=''); b.style.outline='3px solid rgba(37,99,235,0.6)'; };
-      avatarChoices.appendChild(b);
-    });
-  }
 
   auth.onAuthStateChanged(async user=>{
     if(!user){ window.location.href = 'home.html'; return; }
@@ -73,8 +56,7 @@
     pUsername.value = data.username || (data.displayName||currentUser.email||'').split(' ')[0].toLowerCase();
     pDisplay.value = data.displayName || currentUser.displayName || '';
     pBio.value = data.bio || '';
-    renderAvatars(data.avatar);
-    if(editingUid !== currentUser.uid){ pUsername.disabled=true; pDisplay.disabled=true; pBio.disabled=true; saveBtn.style.display='none'; avatarChoices.style.display='none'; }
+    if(editingUid !== currentUser.uid){ pUsername.disabled=true; pDisplay.disabled=true; pBio.disabled=true; saveBtn.style.display='none'; }
     if(data.username){ usernameLocked = true; pUsername.disabled = editingUid !== currentUser.uid; if(editingUid===currentUser.uid) setStatus('Username is set and locked', true); }
   });
 
@@ -104,5 +86,4 @@
     window.location.href = 'index.html';
   });
 </script>
-</body>
-</html>
+</body></html>
