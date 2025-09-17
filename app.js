@@ -1,3 +1,4 @@
+// app js
 // 🔧 Fixed SermoLink app.js - friends, DMs, requests, and avatars
 const firebaseConfig = {
   apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",

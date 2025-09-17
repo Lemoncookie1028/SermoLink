@@ -44,7 +44,7 @@
   const saveBtn = document.getElementById('saveProfile');
   const avatarChoices = document.getElementById('avatarChoices');
 
-  const presets = ['😀','😎','🦊','🐼','🤖','🧙‍♂️','👾','🚀','🐱','🐶','🦁','🐵','🐸','🐙','🌟','🔥','🍀','🎮','🎧','🛰️'];
+  const presets = ['😀','😎','🦊','🐼','🤖','🧙‍♂️','👾','🚀','🐱','🐶','🦁','🐵','🐸','🐙','🌟','🔥','🍀','🎮','🎧','🛰️','💀'];
 
   let currentUser = null;
   let editingUid = null;
@@ -101,7 +101,7 @@
     }
     await db.collection('users').doc(currentUser.uid).set({ username: uname, displayName: pDisplay.value||'', bio: pBio.value||'', avatar: pAvatar.textContent||'' }, { merge: true });
     alert('Profile saved');
-    window.location.href = 'index.html';
+    window.location.href = 'home.html';
   });
 </script>
 </body>
