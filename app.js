@@ -1,5 +1,4 @@
-// app js
-// 🔧 Fixed SermoLink app.js - friends, DMs, requests, and avatars
+// app.js - Fixed SermoLink
 const firebaseConfig = {
   apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
   authDomain: "sermolink.firebaseapp.com",
@@ -34,17 +33,18 @@ let activeChatId = null;
 let messagesUnsub = null;
 let listeners = {};
 
-// avatar presets (20)
-const avatarPresets = Array.from({ length: 20 }, (_, i) =>
-  `https://api.dicebear.com/8.x/identicon/svg?seed=${i + 1}`
-);
-
+// -------- Helpers --------
 function chatIdFor(a, b) {
   return [a, b].sort().join('_');
 }
 function escapeHtml(s) {
   return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+
+// avatar presets
+const avatarPresets = Array.from({ length: 20 }, (_, i) =>
+  `https://api.dicebear.com/8.x/identicon/svg?seed=${i + 1}`
+);
 
 // -------- Tabs --------
 function renderFriendsTab() {
@@ -109,7 +109,7 @@ function renderRequestsTab() {
         decline.className = 'btn';
         decline.style.marginLeft = '6px';
         decline.textContent = 'Decline';
-        accept.onclick = () => acceptRequest(doc.ref);
+        accept.onclick = () => acceptRequest(doc.ref, r);
         decline.onclick = () => declineRequest(doc.ref);
         div.appendChild(accept);
         div.appendChild(decline);
@@ -140,7 +140,7 @@ function renderDmsTab() {
             <strong>${escapeHtml(data.title || other)}</strong>
             <div class="muted">${escapeHtml(data.lastMessage || '')}</div>
           </div>`;
-        div.onclick = () => openChat(doc.id, other);
+        div.onclick = () => openChat(doc.id, other, data.title || other);
         listPanel.appendChild(div);
       });
     })
@@ -160,7 +160,7 @@ tabs.forEach(t => t.addEventListener('click', () => {
 auth.onAuthStateChanged(async user => {
   currentUser = user;
   if (!user) {
-    if (!location.pathname.endsWith('home.html')) window.location.href = 'home.html';
+    if (!location.pathname.endsWith('index.html')) window.location.href = 'index.html';
     return;
   }
 
@@ -173,8 +173,7 @@ auth.onAuthStateChanged(async user => {
       displayName: user.displayName || "New User",
       email: user.email,
       username: (user.displayName || user.email || 'user').split(' ')[0].toLowerCase(),
-      photoURL: user.photoURL || avatarPresets[Math.floor(Math.random() * avatarPresets.length)],
-      friends: []
+      photoURL: user.photoURL || avatarPresets[Math.floor(Math.random() * avatarPresets.length)]
     });
   }
 
@@ -185,6 +184,7 @@ auth.onAuthStateChanged(async user => {
     window.open('profile.html?uid=' + currentUser.uid, '_blank')
   );
   if (profileBtn) profileBtn.addEventListener('click', () => window.location.href = 'profile.html');
+  if (signOutBtn) signOutBtn.addEventListener('click', () => auth.signOut());
 
   const active = document.querySelector('.tab.active');
   if (active) {
@@ -214,8 +214,9 @@ if (sendRequestBtn) sendRequestBtn.addEventListener('click', async () => {
     if (data.uid === currentUser.uid) return alert('Cannot add yourself');
 
     await db.collection('friendRequests').add({
-      sender: currentUser,
+      sender: currentUser.uid,
       senderName: currentUser.displayName || '',
+      receiver: data.uid,
       receiverName: data.displayName || '',
       status: 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -224,14 +225,12 @@ if (sendRequestBtn) sendRequestBtn.addEventListener('click', async () => {
     alert('Friend request sent to ' + (data.displayName || data.username || data.uid));
     searchUser.value = '';
   } catch (e) {
-    alert('Error sending request');
+    alert('Error sending request: ' + e.message);
   }
 });
 
-async function acceptRequest(ref) {
+async function acceptRequest(ref, r) {
   try {
-    const r = (await ref.get()).data();
-    if (!r) return;
     const sender = r.sender;
     const receiver = r.receiver;
 
@@ -256,7 +255,7 @@ async function acceptRequest(ref) {
     renderFriendsTab();
     renderRequestsTab();
   } catch (e) {
-    alert('Error accepting');
+    alert('Error accepting: ' + e.message);
   }
 }
 async function declineRequest(ref) {
@@ -309,7 +308,7 @@ async function openChat(dmid, otherUid, otherName) {
       ['unread.' + currentUser.uid]: 0,
       lastRead: firebase.firestore.FieldValue.serverTimestamp()
     });
-  } catch (e) { }
+  } catch (e) {}
 }
 
 if (sendMsgBtn) sendMsgBtn.addEventListener('click', async () => {

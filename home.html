@@ -1,19 +1,23 @@
-   <!-- home html (was index html) -->
+<!-- home html (was index html) -->
 <!doctype html>
 <html lang="en">
-<link rel="icon" type="image/x-icon" href="logo.png" /> 
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SermoLink</title>
-<link rel="stylesheet" href="styles.css"/>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SermoLink</title>
+  <link rel="icon" type="image/x-icon" href="logo.png" />
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">SermoLink</div>
+
       <div class="profile">
-       <div id="miniAvatar" class="avatar">?</div>
+        <div id="miniAvatar" class="avatar">?</div>
         <div class="meta">
           <div id="displayName">Not signed in</div>
           <div id="displayEmail" class="muted"></div>
@@ -21,7 +25,9 @@
       </div>
 
       <div class="tabs">
-        <button class="tab active" data-tab="friends">Friends <span id="reqCount" class="small muted"></span></button>
+        <button class="tab active" data-tab="friends">
+          Friends <span id="reqCount" class="small muted"></span>
+        </button>
         <button class="tab" data-tab="requests">Requests</button>
         <button class="tab" data-tab="dms">DMs</button>
       </div>
@@ -32,13 +38,14 @@
       </div>
 
       <div class="panel list-panel" id="listPanel">
-        <!-- content injected here -->
+        <!-- list injected -->
       </div>
 
       <div style="flex:1"></div>
+
       <div class="panel bottom-panel">
         <button id="profileBtn" class="btn">Edit Profile</button>
-        <button href="index.html"class="btn">home</button>
+        <button id="signOutBtn" class="btn">Sign Out</button>
       </div>
     </aside>
 
@@ -46,6 +53,7 @@
       <header class="main-header">
         <div id="chatTitle">Select a conversation</div>
       </header>
+
       <section class="content">
         <div class="conversation-list" id="convoList"></div>
         <div class="chat-window">
@@ -59,6 +67,6 @@
     </main>
   </div>
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
