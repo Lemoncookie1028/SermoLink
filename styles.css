@@ -33,3 +33,6 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#071129 0%, #07
 .logo {position: absolute;top: 10px;left: 10px;}
 .logo img {height: 80px;width: auto;}
 .top-right {position: absolute;top: 10px;right: 10px;}
+.logoh {position: absolute;top: 1px;left: 10px;}
+.logoh img {height: 40px;width: auto;}
+.dashboard img {height: 330px;width: auto;}
