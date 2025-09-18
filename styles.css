@@ -35,4 +35,9 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#071129 0%, #07
 .top-right {position: absolute;top: 10px;right: 10px;}
 .logoh {position: absolute;top: 1px;left: 10px;}
 .logoh img {height: 40px;width: auto;}
-.dashboard img {height: 330px;width: auto;}
+.dashboard img {height: 330-px;width: auto;}
+.nav-buttons {display: flex;gap: 10px;}
+.nav-buttons button {background-color: #2c2f33;color: #fff;border: none;border-radius: 8px;padding: 8px 16px;font-size: 14px;cursor: pointer;transition: 0.2s ease;}
+.nav-buttons button:hover {background-color: #5865f2; box-shadow: 0 2px 6px rgba(0,0,0,0.3);}
+.nav-buttons button.active {background-color: #5865f2;font-weight: bold;}
+
