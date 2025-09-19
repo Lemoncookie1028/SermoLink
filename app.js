@@ -343,3 +343,4 @@ if (sendMsgBtn) sendMsgBtn.addEventListener('click', async () => {
 window.addEventListener('beforeunload', () => {
   Object.values(listeners).forEach(u => u && typeof u === 'function' && u());
 });
+
