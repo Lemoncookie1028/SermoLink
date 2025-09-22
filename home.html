@@ -261,6 +261,12 @@ body::before {
   transform: translateY(0);
 }
 
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .list-panel {
   background: rgba(255, 255, 255, 0.02);
   padding: 10px;
@@ -541,6 +547,12 @@ body::before {
   box-shadow: 0 6px 15px rgba(100, 255, 218, 0.4);
 }
 
+#sendMsg:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .app {
@@ -562,13 +574,80 @@ body::before {
     max-height: 200px;
   }
 }
+
+/* Spinner for loading states */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Auth overlay */
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 25, 47, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(10px);
+}
+
+.auth-card {
+  background: rgba(17, 34, 64, 0.9);
+  border-radius: 20px;
+  padding: 40px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(100, 255, 218, 0.2);
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.auth-card h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: var(--accent);
+  font-size: 28px;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  margin: 10px 0;
+}
+
+.auth-message {
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
 <div class="logoh">
-  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzY0ZmZkYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgMThjLTQuNDEgMC04LTMuNTktOC04czMuNTktOCA4LTggOCAzLjU5IDggOC0zLjU5IDgtOCA4eiIvPjxwYXRoIGQ9Ik0xMiA2Yy0zLjMxIDAtNiAyLjY5LTYgNnMyLjY5IDYgNiA2IDYtMi42OSA2LTYtMi42OS02LTYtNnoiLz48cGF0aCBkPSJNMTIgMTBjLTEuMSAwLTIgLjktMiAycy45IDIgMiAyIDItLjkgMi0yLS45LTItMi0yeiIvPjwvc3ZnPg==" alt="SermoLink">
+  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzY0ZmZkYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgMThjLTQuNDEgMC04LTMuNTktOC04czMuNTktOCA4LTggOCAzLjU5IDggOC0zLjU5IDgtOCA4eiIvPjxwYXRoIGQ9Ik0xMiA2Yy0zLjMxIDAtNiAyLjY5LTYgNnMyLjY5IDYgNiA2IDYtMi42OSA2LTYtMi42OS02LTYtNnoiLz48cGF0aCBkPSJNMTIgMTBjLTEuMSAwLTIgLjktMiAycy45IDIgMiAycy0uOS0yLTItMnoiLz48L3N2Zz4=" alt="SermoLink">
   <div class="brand">SermoLink</div>
 </div>
 
@@ -622,62 +701,145 @@ body::before {
   <div class="chat-window">
     <div id="messages" class="messages"></div>
     <div class="composer">
-      <input id="messageInput" placeholder="Write a message..." />
-      <button id="sendMsg" class="btn">Send</button>
+      <input id="messageInput" placeholder="Write a message..." disabled />
+      <button id="sendMsg" class="btn" disabled>Send</button>
     </div>
   </div>
 </section>
 </main>
 </div>
 
-<script src="app.js"></script>
+<!-- Authentication Overlay -->
+<div id="authOverlay" class="auth-overlay">
+  <div class="auth-card">
+    <h2>Welcome to SermoLink</h2>
+    <p>Connect with friends and colleagues</p>
+    <button id="googleSignIn" class="btn auth-btn">
+      <span id="signInText">Sign in with Google</span>
+      <span id="signInSpinner" class="spinner" style="display:none;"></span>
+    </button>
+    <div class="auth-message">
+      By signing in, you agree to our Terms of Service
+    </div>
+  </div>
+</div>
+
 <script>
-// Demo script to show functionality without app.js
-document.addEventListener('DOMContentLoaded', function() {
-  // Tab switching
-  const tabs = document.querySelectorAll('.tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', function() {
-      tabs.forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
+  authDomain: "sermolink.firebaseapp.com",
+  projectId: "sermolink",
+  storageBucket: "sermolink.firebasestorage.app",
+  messagingSenderId: "960323297325",
+  appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4",
+  measurementId: "G-XKNFX885XW"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// DOM Elements
+const authOverlay = document.getElementById('authOverlay');
+const googleSignIn = document.getElementById('googleSignIn');
+const signInText = document.getElementById('signInText');
+const signInSpinner = document.getElementById('signInSpinner');
+const displayName = document.getElementById('displayName');
+const displayEmail = document.getElementById('displayEmail');
+const miniAvatar = document.getElementById('miniAvatar');
+const messageInput = document.getElementById('messageInput');
+const sendMsg = document.getElementById('sendMsg');
+const messages = document.getElementById('messages');
+const convoList = document.getElementById('convoList');
+const listPanel = document.getElementById('listPanel');
+const searchUser = document.getElementById('searchUser');
+const sendRequest = document.getElementById('sendRequest');
+const signOutBtn = document.getElementById('signOutBtn');
+const profileBtn = document.getElementById('profileBtn');
+
+// Authentication state listener
+auth.onAuthStateChanged(user => {
+  if (user) {
+    // User is signed in
+    authOverlay.style.display = 'none';
+    displayName.textContent = user.displayName || 'User';
+    displayEmail.textContent = user.email || '';
+    
+    // Set avatar
+    const initials = (user.displayName || user.email || '?').split(' ').map(n => n[0]).join('').substring(0, 2);
+    miniAvatar.textContent = initials;
+    
+    // Enable message input
+    messageInput.disabled = false;
+    sendMsg.disabled = false;
+    
+    // Save user data to Firestore
+    saveUserData(user);
+    
+    // Load conversations and friends
+    loadConversations();
+    loadFriends();
+  } else {
+    // User is signed out
+    authOverlay.style.display = 'flex';
+    displayName.textContent = 'Not signed in';
+    displayEmail.textContent = '';
+    miniAvatar.textContent = '?';
+    
+    // Disable message input
+    messageInput.disabled = true;
+    sendMsg.disabled = true;
+    
+    // Clear lists
+    convoList.innerHTML = '';
+    listPanel.innerHTML = '';
+  }
+});
+
+// Google Sign-In
+googleSignIn.addEventListener('click', () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  signInText.style.display = 'none';
+  signInSpinner.style.display = 'inline-block';
+  googleSignIn.disabled = true;
+  
+  auth.signInWithPopup(provider)
+    .catch(error => {
+      console.error('Sign-in error:', error);
+      alert('Sign-in failed: ' + error.message);
+    })
+    .finally(() => {
+      signInText.style.display = 'inline';
+      signInSpinner.style.display = 'none';
+      googleSignIn.disabled = false;
     });
-  });
+});
+
+// Sign Out
+signOutBtn.addEventListener('click', () => {
+  auth.signOut();
+});
+
+// Save user data to Firestore
+function saveUserData(user) {
+  const userRef = db.collection('users').doc(user.uid);
+  userRef.set({
+    uid: user.uid,
+    displayName: user.displayName || '',
+    email: user.email || '',
+    photoURL: user.photoURL || '',
+    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+}
+
+// Load conversations
+function loadConversations() {
+  // Clear existing conversations
+  convoList.innerHTML = '';
   
-  // Send message functionality
-  const sendMsg = document.getElementById('sendMsg');
-  const messageInput = document.getElementById('messageInput');
-  const messages = document.getElementById('messages');
-  
-  sendMsg.addEventListener('click', function() {
-    const message = messageInput.value.trim();
-    if (message) {
-      const msgElement = document.createElement('div');
-      msgElement.className = 'msg me';
-      msgElement.innerHTML = `${message}<div class="msg-time">Just now</div>`;
-      messages.appendChild(msgElement);
-      messageInput.value = '';
-      messages.scrollTop = messages.scrollHeight;
-      
-      // Simulate reply
-      setTimeout(() => {
-        const replyElement = document.createElement('div');
-        replyElement.className = 'msg them';
-        replyElement.innerHTML = 'Thanks for your message!';
-        replyElement.innerHTML += '<div class="msg-time">Just now</div>';
-        messages.appendChild(replyElement);
-        messages.scrollTop = messages.scrollHeight;
-      }, 1000);
-    }
-  });
-  
-  messageInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      sendMsg.click();
-    }
-  });
-  
-  // Populate conversation list
-  const convoList = document.getElementById('convoList');
+  // Add sample conversations (in a real app, these would come from Firestore)
   const conversations = [
     { id: 1, name: 'Alex Johnson', lastMessage: 'Hey, how are you doing?', time: '10:42 AM', unread: true },
     { id: 2, name: 'Taylor Swift', lastMessage: 'Thanks for the help yesterday!', time: 'Yesterday', unread: false },
@@ -699,9 +861,14 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     convoList.appendChild(convoItem);
   });
+}
+
+// Load friends
+function loadFriends() {
+  // Clear existing friends
+  listPanel.innerHTML = '';
   
-  // Populate friends list
-  const listPanel = document.getElementById('listPanel');
+  // Add sample friends (in a real app, these would come from Firestore)
   const friends = [
     { id: 1, name: 'Alex Johnson', status: 'online' },
     { id: 2, name: 'Taylor Swift', status: 'offline' },
@@ -721,6 +888,66 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     listPanel.appendChild(friendItem);
   });
+}
+
+// Send message
+sendMsg.addEventListener('click', sendMessage);
+messageInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    sendMessage();
+  }
+});
+
+function sendMessage() {
+  const message = messageInput.value.trim();
+  if (message) {
+    // Create message element
+    const msgElement = document.createElement('div');
+    msgElement.className = 'msg me';
+    msgElement.innerHTML = `
+      ${message}
+      <div class="msg-time">Just now</div>
+    `;
+    messages.appendChild(msgElement);
+    
+    // Clear input and scroll to bottom
+    messageInput.value = '';
+    messages.scrollTop = messages.scrollHeight;
+    
+    // Simulate reply after a delay
+    setTimeout(() => {
+      const replyElement = document.createElement('div');
+      replyElement.className = 'msg them';
+      replyElement.innerHTML = `
+        Thanks for your message!
+        <div class="msg-time">Just now</div>
+      `;
+      messages.appendChild(replyElement);
+      messages.scrollTop = messages.scrollHeight;
+    }, 1000);
+  }
+}
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Send friend request
+sendRequest.addEventListener('click', () => {
+  const username = searchUser.value.trim();
+  if (username) {
+    alert(`Friend request sent to ${username}`);
+    searchUser.value = '';
+  }
+});
+
+// Edit profile
+profileBtn.addEventListener('click', () => {
+  alert('Profile editing would open here');
 });
 </script>
 </body>
