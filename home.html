@@ -1,435 +1,781 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SermoLink</title>
-  <style>
-    :root {
-      --bg: #0b1220;
-      --panel: #0f1724;
-      --accent: #6a0dad;
-      --muted: #9aa4b2;
-      --primary: #8b5cf6;
-      --secondary: #4f46e5;
-      --success: #10b981;
-      --danger: #ef4444;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SermoLink - Modern Chat Platform</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent-primary: #6366f1;
+            --accent-secondary: #818cf8;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', system-ui, sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: linear-gradient(180deg, #071129 0%, #071521 100%);
-      color: #e6eef8;
-      scroll-behavior: smooth;
-    }
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0c1220 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
 
-    .app {
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.1) 0%, transparent 20%);
+            z-index: -1;
+        }
 
-    .sidebar {
-      width: 320px;
-      background: var(--panel);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: transform 0.3s ease;
-    }
+        .app {
+            display: flex;
+            height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
 
-    .sidebar:hover {
-      transform: translateX(-10px);
-    }
+        /* Sidebar Styles */
+        .sidebar {
+            width: 300px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+            overflow: hidden;
+        }
 
-    .brand {
-      font-weight: 800;
-      font-size: 20px;
-      color: var(--accent);
-    }
+        .sidebar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
 
-    .profile {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-    .profile:hover {
-      transform: translateX(5px);
-    }
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+        }
 
-    .avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 8px;
-      background: #1b2a42;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 16px;
-      transition: background 0.3s ease;
-    }
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-    .avatar:hover {
-      background: var(--accent);
-    }
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: var(--transition);
+        }
 
-    .meta {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+        .profile:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
 
-    .meta div {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
 
-    .tabs {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 16px;
-    }
+        .profile-info {
+            flex: 1;
+        }
 
-    .nav-buttons {
-      display: flex;
-      gap: 12px;
-    }
+        .profile-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
 
-    .nav-buttons button {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 14px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+        .profile-email {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
 
-    .nav-buttons button:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
+        .tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-    .nav-buttons button.active {
-      background: var(--accent);
-      color: white;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    }
+        .tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
 
-    .panel {
-      background: rgba(255, 255, 255, 0.02);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-primary);
+            transform: scaleY(0);
+            transition: var(--transition);
+        }
 
-    .panel.search-panel {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
 
-    .panel.search-panel input {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
-      color: inherit;
-      transition: background 0.3s ease;
-    }
+        .tab.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-primary);
+        }
 
-    .panel.search-panel input:focus {
-      background: rgba(255, 255, 255, 0.05);
-      outline: none;
-    }
+        .tab.active::before {
+            transform: scaleY(1);
+        }
 
-    .panel.search-panel .btn {
-      background: var(--accent);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+        .tab i {
+            font-size: 18px;
+        }
 
-    .panel.search-panel .btn:hover {
-      background: #5865f2;
-    }
+        .search-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-    .panel.list-panel {
-      flex: 1;
-      overflow-y: auto;
-    }
+        .search-input {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: var(--transition);
+        }
 
-    .panel.bottom-panel {
-      display: flex;
-      gap: 12px;
-      margin-top: auto;
-    }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
 
-    .panel.bottom-panel .btn {
-      background: var(--accent);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+        .btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
 
-    .panel.bottom-panel .btn:hover {
-      background: #5865f2;
-    }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
 
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+        .btn:active {
+            transform: translateY(0);
+        }
 
-    .main-header {
-      padding: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      background: rgba(255, 255, 255, 0.01);
-    }
+        .list-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
 
-    .content {
-      display: flex;
-      flex: 1;
-      gap: 12px;
-      padding: 12px;
-    }
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
 
-    .conversation-list {
-      width: 320px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-      padding: 8px;
-      border-radius: 8px;
-      overflow-y: auto;
-    }
+        .friend-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
 
-    .convo-item {
-      padding: 8px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
 
-    .convo-item:hover {
-      background: rgba(255, 255, 255, 0.03);
-    }
+        .friend-info {
+            flex: 1;
+        }
 
-    .unread-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--accent);
-      margin-left: 8px;
-    }
+        .friend-name {
+            font-weight: 500;
+            font-size: 15px;
+        }
 
-    .chat-window {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: rgba(255, 255, 255, 0.01);
-      border-radius: 8px;
-      overflow: hidden;
-    }
+        .friend-status {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
 
-    .messages {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      scroll-behavior: smooth;
-    }
+        .online {
+            color: var(--success);
+        }
 
-    .msg {
-      max-width: 70%;
-      padding: 10px;
-      border-radius: 12px;
-      margin-bottom: 8px;
-      position: relative;
-      transition: transform 0.3s ease;
-    }
+        .bottom-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-    .msg.me {
-      margin-left: auto;
-      background: linear-gradient(145deg, #8b5cf6, #6a0dad);
-      color: white;
-    }
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            box-shadow: none;
+        }
 
-    .msg:not(.me) {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--muted);
-    }
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
 
-    .msg::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 8px 8px 0 0;
-      border-color: var(--accent) transparent transparent transparent;
-    }
+        /* Main Content Styles */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-    .msg.me::after {
-      border-color: var(--accent) transparent transparent transparent;
-    }
+        .main-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-    .msg:not(.me)::after {
-      border-color: rgba(255, 255, 255, 0.1) transparent transparent transparent;
-    }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+        }
 
-    .msg-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 12px;
-    }
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
 
-    .msg-container .msg {
-      animation: fadeIn 0.5s ease;
-    }
+        .content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            padding: 20px;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        .conversation-list {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 10px;
+            overflow-y: auto;
+        }
 
-    .input-area {
-      display: flex;
-      gap: 8px;
-    }
+        .convo-item {
+            padding: 14px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 8px;
+        }
 
-    .input-area input {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
-      color: inherit;
-      transition: background 0.3s ease;
-    }
+        .convo-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
 
-    .input-area input:focus {
-      background: rgba(255, 255, 255, 0.05);
-      outline: none;
-    }
+        .convo-item.active {
+            background: rgba(99, 102, 241, 0.15);
+        }
 
-    .input-area .btn {
-      background: var(--accent);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+        .convo-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 18px;
+        }
 
-    .input-area .btn:hover {
-      background: #5865f2;
-    }
+        .convo-info {
+            flex: 1;
+        }
 
-    .footer {
-      margin-top: auto;
-      padding: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.03);
-    }
+        .convo-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
 
-    .footer .btn {
-      background: var(--accent);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+        .convo-preview {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
 
-    .footer .btn:hover {
-      background: #5865f2;
-    }
+        .convo-time {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
 
-    .hidden {
-      display: none;
-    }
+        .unread-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            margin-left: auto;
+        }
 
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 240px;
-      }
-    }
-  </style>
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .msg {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg.me {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg.them {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .composer {
+            display: flex;
+            padding: 15px;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .composer-input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .composer-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .app {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .content {
+                flex-direction: column;
+            }
+            
+            .conversation-list {
+                width: 100%;
+                max-height: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <div class="sidebar">
-      <div class="brand">SermoLink</div>
-      <div class="profile" id="profile">
-        <div class="avatar" id="avatar">JD</div>
-        <div class="meta">
-          <div id="username">John Doe</div>
-          <div id="status">Online</div>
-        </div>
-      </div>
-      <div class="tabs">
-        <div class="nav-buttons">
-          <button class="active" id="chat-tab">Chats</button>
-          <button id="contacts-tab">Contacts</button>
-          <button id="settings-tab">Settings</button>
-        </div>
-        <div class="panel search-panel">
-          <input type="text" placeholder="Search..." id="search-input" />
-          <button id="search-btn">Search</button>
-        </div>
-        <div class="panel list-panel" id="chat-list">
-          <!-- Chat list items will appear here -->
-        </div>
-        <div class="panel bottom-panel">
-          <button id="new-chat-btn">New Chat</button>
-          <button id="logout-btn">Logout</button>
-        </div>
-      </div>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo">S</div>
+                <div class="logo-text">SermoLink</div>
+            </div>
+            
+            <div class="profile">
+                <div class="avatar">JD</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="displayName">John Doe</div>
+                    <div class="profile-email" id="displayEmail">john.doe@example.com</div>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" data-tab="friends">
+                    <i class="fas fa-user-friends"></i> Friends 
+                    <span id="reqCount" class="small muted"></span>
+                </button>
+                <button class="tab" data-tab="requests">
+                    <i class="fas fa-user-plus"></i> Requests
+                </button>
+                <button class="tab" data-tab="dms">
+                    <i class="fas fa-comments"></i> DMs
+                </button>
+            </div>
+            
+            <div class="search-panel">
+                <input id="searchUser" class="search-input" placeholder="Add by username" />
+                <button id="sendRequest" class="btn">
+                    <i class="fas fa-paper-plane"></i> Send Request
+                </button>
+            </div>
+            
+            <div class="list-panel" id="listPanel">
+                <div class="friend-item">
+                    <div class="friend-avatar">AS</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Alice Smith</div>
+                        <div class="friend-status online">Online</div>
+                    </div>
+                </div>
+                <div class="friend-item">
+                    <div class="friend-avatar">BJ</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Bob Johnson</div>
+                        <div class="friend-status">Last seen 2h ago</div>
+                    </div>
+                </div>
+                <div class="friend-item">
+                    <div class="friend-avatar">CR</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Charlie Roberts</div>
+                        <div class="friend-status online">Online</div>
+                    </div>
+                </div>
+                <div class="friend-item">
+                    <div class="friend-avatar">DM</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Dana Miller</div>
+                        <div class="friend-status">Last seen yesterday</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bottom-panel">
+                <button id="profileBtn" class="btn secondary-btn">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </button>
+                <button id="signOutBtn" class="btn secondary-btn">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+            </div>
+        </aside>
+        
+        <main class="main">
+            <header class="main-header">
+                <div class="status-indicator"></div>
+                <div class="chat-title" id="chatTitle">Alice Smith</div>
+            </header>
+            
+            <section class="content">
+                <div class="conversation-list" id="convoList">
+                    <div class="convo-item active">
+                        <div class="convo-avatar">AS</div>
+                        <div class="convo-info">
+                            <div class="convo-name">Alice Smith</div>
+                            <div class="convo-preview">Hey, how are you doing?</div>
+                        </div>
+                        <div class="convo-time">10:42 AM</div>
+                        <div class="unread-dot"></div>
+                    </div>
+                    <div class="convo-item">
+                        <div class="convo-avatar">BJ</div>
+                        <div class="convo-info">
+                            <div class="convo-name">Bob Johnson</div>
+                            <div class="convo-preview">Thanks for the help yesterday!</div>
+                        </div>
+                        <div class="convo-time">Yesterday</div>
+                    </div>
+                    <div class="convo-item">
+                        <div class="convo-avatar">CR</div>
+                        <div class="convo-info">
+                            <div class="convo-name">Charlie Roberts</div>
+                            <div class="convo-preview">Meeting at 3 PM today</div>
+                        </div>
+                        <div class="convo-time">Yesterday</div>
+                        <div class="unread-dot"></div>
+                    </div>
+                    <div class="convo-item">
+                        <div class="convo-avatar">DM</div>
+                        <div class="convo-info">
+                            <div class="convo-name">Dana Miller</div>
+                            <div class="convo-preview">Did you see the new project?</div>
+                        </div>
+                        <div class="convo-time">Wed</div>
+                    </div>
+                </div>
+                
+                <div class="chat-window">
+                    <div class="messages" id="messages">
+                        <div class="msg them">
+                            Hey there! How's your day going?
+                            <div class="msg-time">10:30 AM</div>
+                        </div>
+                        <div class="msg me">
+                            Pretty good! Just working on some new features for SermoLink.
+                            <div class="msg-time">10:32 AM</div>
+                        </div>
+                        <div class="msg them">
+                            That sounds exciting! What kind of features?
+                            <div class="msg-time">10:33 AM</div>
+                        </div>
+                        <div class="msg me">
+                            I'm adding some animations and improving the UI. Check this out!
+                            <div class="msg-time">10:35 AM</div>
+                        </div>
+                        <div class="msg them">
+                            Wow, this looks amazing! The new design is so much better.
+                            <div class="msg-time">10:38 AM</div>
+                        </div>
+                        <div class="msg me">
+                            Thanks! I've been working on it for a few weeks. The animations make it feel more alive.
+                            <div class="msg-time">10:40 AM</div>
+                        </div>
+                        <div class="msg them">
+                            I can definitely tell! It's so much more engaging now.
+                            <div class="msg-time">10:42 AM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="composer">
+                        <input id="messageInput" class="composer-input" placeholder="Write a message..." />
+                        <button id="sendMsg" class="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    <div class="main">
-      <div class="main-header">
-        <h2>Chat</h2>
-      </div>
-      <div class="content">
-        <div class="conversation-list" id="conversation-list">
-          <!-- Conversation items will appear here -->
-        </div>
-        <div class="chat-window">
-          <div class="messages" id="message-container">
-            <!-- Messages will appear here -->
-          </div>
-          <div class="input-area">
-            <input type="text" id="message-input" placeholder="Type a message..." />
-            <button id="send-btn">Send</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <script src="app.js"></script>
+    <script>
+        // Simple animation for tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+            });
+        });
+
+        // Add message sending functionality
+        document.getElementById('sendMsg').addEventListener('click', function() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const messagesContainer = document.getElementById('messages');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'msg me';
+                newMessage.innerHTML = `${message}<div class="msg-time">Just now</div>`;
+                messagesContainer.appendChild(newMessage);
+                input.value = '';
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+
+        // Allow sending with Enter key
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('sendMsg').click();
+            }
+        });
+
+        // Simulate friend status updates
+        setInterval(() => {
+            const statuses = document.querySelectorAll('.friend-status');
+            statuses.forEach(status => {
+                if (Math.random() > 0.7) {
+                    if (status.classList.contains('online')) {
+                        status.classList.remove('online');
+                        status.textContent = 'Last seen just now';
+                    } else {
+                        status.classList.add('online');
+                        status.textContent = 'Online';
+                    }
+                }
+            });
+        }, 5000);
+    </script>
 </body>
 </html>
