@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SermoLink — Signup / Login</title>
+  <style>
+    :root{font-family:Inter,system-ui,Arial,sans-serif}
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f172a;color:#e6eef8;margin:0}
+    .card{background:#0b1220;border-radius:12px;padding:28px;width:360px;box-shadow:0 8px 30px rgba(2,6,23,.7)}
+    h1{margin:0 0 14px;font-size:20px}
+    .switch{display:flex;gap:8px;margin-bottom:12px}
+    .input{width:100%;padding:10px;border-radius:8px;border:1px solid #182032;background:#071021;color:inherit;margin-bottom:10px}
+    .btn{width:100%;padding:10px;border-radius:8px;border:0;background:#2563eb;color:white;font-weight:600;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid #2a3b57;color:#bcd3ff}
+    .social{display:flex;gap:10px}
+    .social button{flex:1;padding:10px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+    .google{background:#fff;color:#111}
+    .microsoft{background:#2b2b2b;color:#fff}
+    .small{font-size:13px;color:#9fb0d8;margin-top:10px;text-align:center}
+    .signed-in{background:#071021;padding:12px;border-radius:8px;margin-top:12px}
+    .error{color:#ff8b8b;font-size:13px;margin-bottom:8px}
+    .note{font-size:12px;color:#9fb0d8;margin-top:8px}
+    .row{display:flex;gap:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="formTitle">Create account</h1>
+
+    <div class="switch">
+      <button id="toggleSignup" class="btn secondary">Sign up</button>
+      <button id="toggleLogin" class="btn secondary">Log in</button>
+    </div>
+
+    <div id="error" class="error" style="display:none"></div>
+
+    <input id="email" class="input" type="email" placeholder="Email" autocomplete="email" />
+    <input id="password" class="input" type="password" placeholder="Password" autocomplete="current-password" />
+
+    <div class="row">
+      <button id="submitBtn" class="btn">Create account</button>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="small">or continue with</div>
+    <div style="height:8px"></div>
+    <div class="social">
+      <button id="googleBtn" class="google">Google</button>
+      <button id="microsoftBtn" class="microsoft">Microsoft</button>
+    </div>
+
+    <div class="note">This is a basic demo. and change style and link with style.css.</div>
+
+    <div id="userInfo" style="display:none" class="signed-in">
+      <div id="userText"></div>
+      <div style="height:8px"></div>
+      <button id="signOutBtn" class="btn secondary">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Firebase Compat SDKs (works with older firebase.auth() API) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // TODO: replace with your firebase config
+    const firebaseConfig = {
+     apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
+     authDomain: "sermolink.firebaseapp.com",
+     projectId: "sermolink",
+     storageBucket: "sermolink.firebasestorage.app",
+     messagingSenderId: "960323297325",
+     appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Elements
+    const toggleSignup = document.getElementById('toggleSignup');
+    const toggleLogin = document.getElementById('toggleLogin');
+    const formTitle = document.getElementById('formTitle');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const microsoftBtn = document.getElementById('microsoftBtn');
+    const errorBox = document.getElementById('error');
+    const userInfo = document.getElementById('userInfo');
+    const userText = document.getElementById('userText');
+    const signOutBtn = document.getElementById('signOutBtn');
+
+    let mode = 'signup'; // or 'login'
+
+    function setMode(newMode){
+      mode = newMode;
+      if(mode === 'signup'){
+        formTitle.textContent = 'Create account';
+        submitBtn.textContent = 'Create account';
+      } else {
+        formTitle.textContent = 'Log in';
+        submitBtn.textContent = 'Log in';
+      }
+      errorBox.style.display = 'none';
+    }
+
+    toggleSignup.addEventListener('click', ()=>setMode('signup'));
+    toggleLogin.addEventListener('click', ()=>setMode('login'));
+
+    submitBtn.addEventListener('click', async ()=>{
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      errorBox.style.display = 'none';
+
+      if(!email || !password){
+        showError('Email and password are required');
+        return;
+      }
+
+      try{
+        if(mode === 'signup'){
+          // create
+          await auth.createUserWithEmailAndPassword(email, password);
+        } else {
+          // login
+          await auth.signInWithEmailAndPassword(email, password);
+        }
+      } catch(err){
+        showError(err.message || err.toString());
+      }
+    });
+
+    googleBtn.addEventListener('click', async ()=>{
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try{
+        await auth.signInWithPopup(provider);
+      } catch(err){ showError(err.message || err.toString()); }
+    });
+
+    microsoftBtn.addEventListener('click', async ()=>{
+      // Microsoft via Firebase OAuthProvider (requires enabling Microsoft provider in Firebase Console)
+      const msProvider = new firebase.auth.OAuthProvider('microsoft.com');
+      try{
+        await auth.signInWithPopup(msProvider);
+      } catch(err){ showError(err.message || err.toString()); }
+    });
+
+    signOutBtn.addEventListener('click', ()=>auth.signOut());
+
+    function showError(msg){
+      errorBox.style.display = 'block';
+      errorBox.textContent = msg;
+    }
+
+    // Monitor auth state
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        // Signed in
+        userInfo.style.display = 'block';
+        userText.innerHTML = `Signed in as <strong>${escapeHtml(user.email || user.displayName || 'Unknown')}</strong>`;
+      } else {
+        userInfo.style.display = 'none';
+      }
+    });
+
+    // small helper
+    function escapeHtml(s){
+      return String(s).replace(/[&<>\"']/g, (c)=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    // Set initial mode
+    setMode('signup');
+  </script>
+</body>
+</html>
