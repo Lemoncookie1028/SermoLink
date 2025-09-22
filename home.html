@@ -1,1014 +1,727 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SermoLink - Modern Chat Platform</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --accent-primary: #6366f1;
-            --accent-secondary: #818cf8;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-tertiary: #94a3b8;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --card-radius: 16px;
-            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #0c1220 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.1) 0%, transparent 20%);
-            z-index: -1;
-        }
-
-        .app {
-            display: flex;
-            height: 100vh;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 300px;
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border-radius: var(--card-radius);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: var(--transition);
-            overflow: hidden;
-        }
-
-        .sidebar:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            font-size: 22px;
-            font-weight: 700;
-            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            transition: var(--transition);
-        }
-
-        .profile:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(5px);
-        }
-
-        .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-            color: white;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-        }
-
-        .profile-info {
-            flex: 1;
-        }
-
-        .profile-name {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .profile-email {
-            font-size: 13px;
-            color: var(--text-tertiary);
-        }
-
-        .tabs {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .tab {
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            border-radius: 10px;
-            padding: 14px 16px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent-primary);
-            transform: scaleY(0);
-            transition: var(--transition);
-        }
-
-        .tab:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
-        }
-
-        .tab.active {
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--accent-primary);
-        }
-
-        .tab.active::before {
-            transform: scaleY(1);
-        }
-
-        .tab i {
-            font-size: 18px;
-        }
-
-        .search-panel {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .search-input {
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 12px 15px;
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: var(--transition);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: none;
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .list-panel {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 10px;
-            flex: 1;
-            overflow-y: auto;
-            max-height: 300px;
-        }
-
-        .friend-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 10px;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .friend-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .friend-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #818cf8, #6366f1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: white;
-        }
-
-        .friend-info {
-            flex: 1;
-        }
-
-        .friend-name {
-            font-weight: 500;
-            font-size: 15px;
-        }
-
-        .friend-status {
-            font-size: 12px;
-            color: var(--text-tertiary);
-        }
-
-        .online {
-            color: var(--success);
-        }
-
-        .bottom-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .secondary-btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-secondary);
-            box-shadow: none;
-        }
-
-        .secondary-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
-        }
-
-        /* Main Content Styles */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(12px);
-            border-radius: var(--card-radius);
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .main-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--success);
-        }
-
-        .chat-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .content {
-            display: flex;
-            flex: 1;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .conversation-list {
-            width: 300px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 10px;
-            overflow-y: auto;
-        }
-
-        .convo-item {
-            padding: 14px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 8px;
-        }
-
-        .convo-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .convo-item.active {
-            background: rgba(99, 102, 241, 0.15);
-        }
-
-        .convo-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #818cf8, #6366f1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: white;
-            font-size: 18px;
-        }
-
-        .convo-info {
-            flex: 1;
-        }
-
-        .convo-name {
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .convo-preview {
-            font-size: 13px;
-            color: var(--text-tertiary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 180px;
-        }
-
-        .convo-time {
-            font-size: 12px;
-            color: var(--text-tertiary);
-        }
-
-        .unread-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            margin-left: auto;
-        }
-
-        .chat-window {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(15, 23, 42, 0.3);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .msg {
-            max-width: 70%;
-            padding: 14px 18px;
-            border-radius: 18px;
-            position: relative;
-            animation: fadeIn 0.3s ease-out;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .msg.me {
-            align-self: flex-end;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .msg.them {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
-            border-bottom-left-radius: 4px;
-        }
-
-        .msg-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        .composer {
-            display: flex;
-            padding: 15px;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .composer-input {
-            flex: 1;
-            padding: 14px 18px;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
-            font-size: 15px;
-            transition: var(--transition);
-        }
-
-        .composer-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .send-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-        }
-
-        .send-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
-        }
-
-        /* Auth Screen */
-        .auth-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .auth-card {
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: var(--card-radius);
-            padding: 30px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .auth-title {
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-label {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .form-input {
-            padding: 14px 18px;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
-            font-size: 15px;
-            transition: var(--transition);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .toggle-auth {
-            text-align: center;
-            margin-top: 15px;
-            color: var(--text-tertiary);
-            font-size: 14px;
-        }
-
-        .toggle-auth a {
-            color: var(--accent-primary);
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .toggle-auth a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 900px) {
-            .app {
-                flex-direction: column;
-                padding: 10px;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-            }
-            
-            .content {
-                flex-direction: column;
-            }
-            
-            .conversation-list {
-                width: 100%;
-                max-height: 200px;
-            }
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SermoLink</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<style>
+:root {
+  --bg: #0a192f;
+  --panel: #112240;
+  --accent: #64ffda;
+  --accent-dark: #52d4b4;
+  --muted: #8892b0;
+  --text: #ccd6f6;
+  --text-light: #e6f1ff;
+  --card-radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: linear-gradient(135deg, #0a192f 0%, #0c1b33 100%);
+  color: var(--text);
+  overflow: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(100, 255, 218, 0.05) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba(100, 255, 218, 0.03) 0%, transparent 20%);
+  z-index: -1;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+  padding: 20px;
+  gap: 20px;
+}
+
+.sidebar {
+  width: 320px;
+  background: rgba(17, 34, 64, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: var(--card-radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(100, 255, 218, 0.1);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.sidebar:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.logoh {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logoh img {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 0 5px rgba(100, 255, 218, 0.3));
+  transition: var(--transition);
+}
+
+.logoh img:hover {
+  transform: scale(1.05);
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 24px;
+  background: linear-gradient(to right, var(--accent), var(--accent-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.profile {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.profile:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(5px);
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(100, 255, 218, 0.2);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#displayName {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tab {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: var(--transition);
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-light);
+}
+
+.tab.active {
+  background: rgba(100, 255, 218, 0.1);
+  color: var(--accent);
+}
+
+.tab.active::before {
+  transform: scaleY(1);
+}
+
+.tab i {
+  font-size: 16px;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.search-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#searchUser {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 15px;
+  color: var(--text-light);
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+#searchUser:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  color: var(--bg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(100, 255, 218, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.list-panel {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px;
+  border-radius: 12px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.friend-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.friend-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--bg);
+}
+
+.friend-info {
+  flex: 1;
+}
+
+.friend-name {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.friend-status {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.online {
+  color: #64ffda;
+}
+
+.bottom-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-light);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(17, 34, 64, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+.main-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #64ffda;
+}
+
+#chatTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  padding: 20px;
+}
+
+.conversation-list {
+  width: 320px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: 12px;
+  overflow-y: auto;
+}
+
+.convo-item {
+  padding: 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 8px;
+}
+
+.convo-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.convo-item.active {
+  background: rgba(100, 255, 218, 0.1);
+}
+
+.convo-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--bg);
+  font-size: 18px;
+}
+
+.convo-info {
+  flex: 1;
+}
+
+.convo-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.convo-preview {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.convo-time {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.unread-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 8px;
+  box-shadow: 0 0 5px var(--accent);
+}
+
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.msg {
+  max-width: 70%;
+  padding: 14px 18px;
+  border-radius: 18px;
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg.me {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: var(--bg);
+  border-bottom-right-radius: 4px;
+}
+
+.msg.them {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+
+.msg-time {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.composer {
+  display: flex;
+  padding: 15px;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#messageInput {
+  flex: 1;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-light);
+  font-size: 15px;
+  transition: var(--transition);
+}
+
+#messageInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
+}
+
+#sendMsg {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none;
+  color: var(--bg);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  box-shadow: 0 4px 10px rgba(100, 255, 218, 0.3);
+}
+
+#sendMsg:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(100, 255, 218, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .app {
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  
+  .content {
+    flex-direction: column;
+  }
+  
+  .conversation-list {
+    width: 100%;
+    max-height: 200px;
+  }
+}
+</style>
 </head>
 <body>
-    <!-- Authentication Screen -->
-    <div class="auth-container" id="authContainer">
-        <div class="auth-card">
-            <h2 class="auth-title">Welcome to SermoLink</h2>
-            <form class="auth-form" id="authForm">
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="emailInput" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="passwordInput" placeholder="Enter your password" required>
-                </div>
-                <button type="submit" class="btn" id="authBtn">Sign In</button>
-            </form>
-            <div class="toggle-auth">
-                Don't have an account? <a id="toggleAuth">Sign Up</a>
-            </div>
-        </div>
+<div class="app">
+<aside class="sidebar">
+<div class="logoh">
+  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzY0ZmZkYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgMThjLTQuNDEgMC04LTMuNTktOC04czMuNTktOCA4LTggOCAzLjU5IDggOC0zLjU5IDgtOCA4eiIvPjxwYXRoIGQ9Ik0xMiA2Yy0zLjMxIDAtNiAyLjY5LTYgNnMyLjY5IDYgNiA2IDYtMi42OSA2LTYtMi42OS02LTYtNnoiLz48cGF0aCBkPSJNMTIgMTBjLTEuMSAwLTIgLjktMiAycy45IDIgMiAyIDItLjkgMi0yLS45LTItMi0yeiIvPjwvc3ZnPg==" alt="SermoLink">
+  <div class="brand">SermoLink</div>
+</div>
+
+<div class="profile">
+  <div id="miniAvatar" class="avatar">?</div>
+  <div class="meta">
+    <div id="displayName">Not signed in</div>
+    <div id="displayEmail" class="muted"></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="nav-buttons">
+    <button class="tab active" data-tab="friends">
+      👥 Friends <span id="reqCount" class="small muted"></span>
+    </button>
+    <button class="tab" data-tab="requests">
+      📬 Requests
+    </button>
+    <button class="tab" data-tab="dms">
+      💬 DMs
+    </button>
+  </div>
+
+  <div class="panel search-panel">
+    <input id="searchUser" placeholder="Add by username" />
+    <button id="sendRequest" class="btn">Send Request</button>
+  </div>
+
+  <div class="panel list-panel" id="listPanel">
+    <!-- list injected -->
+  </div>
+
+  <div style="flex:1"></div>
+
+  <div class="panel bottom-panel">
+    <button id="profileBtn" class="btn secondary-btn">Edit Profile</button>
+    <button id="signOutBtn" class="btn secondary-btn">Sign Out</button>
+  </div>
+</div>
+</aside>
+
+<main class="main">
+<header class="main-header">
+  <div class="status-indicator"></div>
+  <div id="chatTitle">Select a conversation</div>
+</header>
+
+<section class="content">
+  <div class="conversation-list" id="convoList"></div>
+  <div class="chat-window">
+    <div id="messages" class="messages"></div>
+    <div class="composer">
+      <input id="messageInput" placeholder="Write a message..." />
+      <button id="sendMsg" class="btn">Send</button>
     </div>
+  </div>
+</section>
+</main>
+</div>
 
-    <!-- Main App -->
-    <div class="app" id="appContainer" style="display: none;">
-        <aside class="sidebar">
-            <div class="logo-container">
-                <div class="logo">S</div>
-                <div class="logo-text">SermoLink</div>
-            </div>
-            
-            <div class="profile">
-                <div class="avatar" id="userAvatar">JD</div>
-                <div class="profile-info">
-                    <div class="profile-name" id="displayName">John Doe</div>
-                    <div class="profile-email" id="displayEmail">john.doe@example.com</div>
-                </div>
-            </div>
-            
-            <div class="tabs">
-                <button class="tab active" data-tab="friends">
-                    <i class="fas fa-user-friends"></i> Friends 
-                    <span id="reqCount" class="small muted"></span>
-                </button>
-                <button class="tab" data-tab="requests">
-                    <i class="fas fa-user-plus"></i> Requests
-                </button>
-                <button class="tab" data-tab="dms">
-                    <i class="fas fa-comments"></i> DMs
-                </button>
-            </div>
-            
-            <div class="search-panel">
-                <input id="searchUser" class="search-input" placeholder="Add by username" />
-                <button id="sendRequest" class="btn">
-                    <i class="fas fa-paper-plane"></i> Send Request
-                </button>
-            </div>
-            
-            <div class="list-panel" id="listPanel">
-                <!-- Friends will be populated here -->
-            </div>
-            
-            <div class="bottom-panel">
-                <button id="profileBtn" class="btn secondary-btn">
-                    <i class="fas fa-user-edit"></i> Edit Profile
-                </button>
-                <button id="signOutBtn" class="btn secondary-btn">
-                    <i class="fas fa-sign-out-alt"></i> Sign Out
-                </button>
-            </div>
-        </aside>
-        
-        <main class="main">
-            <header class="main-header">
-                <div class="status-indicator"></div>
-                <div class="chat-title" id="chatTitle">Select a conversation</div>
-            </header>
-            
-            <section class="content">
-                <div class="conversation-list" id="convoList">
-                    <!-- Conversations will be populated here -->
-                </div>
-                
-                <div class="chat-window">
-                    <div class="messages" id="messages">
-                        <div class="msg them">
-                            Select a conversation to start chatting
-                            <div class="msg-time">Just now</div>
-                        </div>
-                    </div>
-                    
-                    <div class="composer">
-                        <input id="messageInput" class="composer-input" placeholder="Write a message..." disabled />
-                        <button id="sendMsg" class="send-btn" disabled>
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDkx8n3k8n3k8n3k8n3k8n3k8n3k8n3k8n3k",
-            authDomain: "sermolink-demo.firebaseapp.com",
-            projectId: "sermolink-demo",
-            storageBucket: "sermolink-demo.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456abcdef1234"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // DOM Elements
-        const authContainer = document.getElementById('authContainer');
-        const appContainer = document.getElementById('appContainer');
-        const authForm = document.getElementById('authForm');
-        const authBtn = document.getElementById('authBtn');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const emailInput = document.getElementById('emailInput');
-        const passwordInput = document.getElementById('passwordInput');
-        const displayName = document.getElementById('displayName');
-        const displayEmail = document.getElementById('displayEmail');
-        const userAvatar = document.getElementById('userAvatar');
-        const signOutBtn = document.getElementById('signOutBtn');
-        const messageInput = document.getElementById('messageInput');
-        const sendMsgBtn = document.getElementById('sendMsg');
-        const messagesContainer = document.getElementById('messages');
-        const convoList = document.getElementById('convoList');
-        const listPanel = document.getElementById('listPanel');
-        const chatTitle = document.getElementById('chatTitle');
-
-        // State variables
-        let currentUser = null;
-        let currentChat = null;
-        let isSignUp = false;
-
-        // Authentication
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                displayName.textContent = user.displayName || user.email.split('@')[0];
-                displayEmail.textContent = user.email;
-                userAvatar.textContent = getInitials(user.displayName || user.email);
-                
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'flex';
-                
-                loadFriends();
-                loadConversations();
-            } else {
-                authContainer.style.display = 'flex';
-                appContainer.style.display = 'none';
-                currentUser = null;
-            }
-        });
-
-        // Toggle between sign in and sign up
-        toggleAuth.addEventListener('click', () => {
-            isSignUp = !isSignUp;
-            authBtn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
-            toggleAuth.innerHTML = isSignUp 
-                ? 'Already have an account? <a id="toggleAuth">Sign In</a>' 
-                : "Don't have an account? <a id=\"toggleAuth\">Sign Up</a>";
-        });
-
-        // Handle authentication form submission
-        authForm.addEventListener('submit', e => {
-            e.preventDefault();
-            
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            
-            if (isSignUp) {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then(userCredential => {
-                        return userCredential.user.updateProfile({
-                            displayName: email.split('@')[0]
-                        });
-                    })
-                    .catch(error => {
-                        alert('Error: ' + error.message);
-                    });
-            } else {
-                auth.signInWithEmailAndPassword(email, password)
-                    .catch(error => {
-                        alert('Error: ' + error.message);
-                    });
-            }
-        });
-
-        // Sign out
-        signOutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
-
-        // Send message
-        sendMsgBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (message && currentChat) {
-                db.collection('chats').doc(currentChat.id).collection('messages').add({
-                    text: message,
-                    sender: currentUser.uid,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                })
-                .then(() => {
-                    messageInput.value = '';
-                })
-                .catch(error => {
-                    console.error('Error sending message:', error);
-                });
-            }
-        }
-
-        // Load friends
-        function loadFriends() {
-            // Clear current friends
-            listPanel.innerHTML = '';
-            
-            // For demo purposes, we'll add some sample friends
-            const friends = [
-                { id: '1', name: 'Alice Smith', email: 'alice@example.com', status: 'online' },
-                { id: '2', name: 'Bob Johnson', email: 'bob@example.com', status: 'offline' },
-                { id: '3', name: 'Charlie Roberts', email: 'charlie@example.com', status: 'online' },
-                { id: '4', name: 'Dana Miller', email: 'dana@example.com', status: 'offline' }
-            ];
-            
-            friends.forEach(friend => {
-                const friendItem = document.createElement('div');
-                friendItem.className = 'friend-item';
-                friendItem.innerHTML = `
-                    <div class="friend-avatar">${getInitials(friend.name)}</div>
-                    <div class="friend-info">
-                        <div class="friend-name">${friend.name}</div>
-                        <div class="friend-status ${friend.status === 'online' ? 'online' : ''}">
-                            ${friend.status === 'online' ? 'Online' : 'Offline'}
-                        </div>
-                    </div>
-                `;
-                listPanel.appendChild(friendItem);
-            });
-        }
-
-        // Load conversations
-        function loadConversations() {
-            // Clear current conversations
-            convoList.innerHTML = '';
-            
-            // For demo purposes, we'll add some sample conversations
-            const conversations = [
-                { id: '1', name: 'Alice Smith', lastMessage: 'Hey, how are you doing?', time: '10:42 AM', unread: true },
-                { id: '2', name: 'Bob Johnson', lastMessage: 'Thanks for the help yesterday!', time: 'Yesterday', unread: false },
-                { id: '3', name: 'Charlie Roberts', lastMessage: 'Meeting at 3 PM today', time: 'Yesterday', unread: true },
-                { id: '4', name: 'Dana Miller', lastMessage: 'Did you see the new project?', time: 'Wed', unread: false }
-            ];
-            
-            conversations.forEach(convo => {
-                const convoItem = document.createElement('div');
-                convoItem.className = 'convo-item';
-                convoItem.dataset.id = convo.id;
-                convoItem.innerHTML = `
-                    <div class="convo-avatar">${getInitials(convo.name)}</div>
-                    <div class="convo-info">
-                        <div class="convo-name">${convo.name}</div>
-                        <div class="convo-preview">${convo.lastMessage}</div>
-                    </div>
-                    <div class="convo-time">${convo.time}</div>
-                    ${convo.unread ? '<div class="unread-dot"></div>' : ''}
-                `;
-                
-                convoItem.addEventListener('click', () => {
-                    selectConversation(convo);
-                });
-                
-                convoList.appendChild(convoItem);
-            });
-        }
-
-        // Select conversation
-        function selectConversation(convo) {
-            // Update UI
-            document.querySelectorAll('.convo-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
-            
-            // Update chat title
-            chatTitle.textContent = convo.name;
-            
-            // Enable message input
-            messageInput.disabled = false;
-            sendMsgBtn.disabled = false;
-            
-            // Set current chat
-            currentChat = convo;
-            
-            // Load messages for this conversation
-            loadMessages(convo.id);
-        }
-
-        // Load messages
-        function loadMessages(chatId) {
-            // Clear current messages
-            messagesContainer.innerHTML = '';
-            
-            // For demo purposes, we'll add some sample messages
-            const messages = [
-                { text: 'Hey there! How\'s your day going?', sender: 'them', time: '10:30 AM' },
-                { text: 'Pretty good! Just working on some new features for SermoLink.', sender: 'me', time: '10:32 AM' },
-                { text: 'That sounds exciting! What kind of features?', sender: 'them', time: '10:33 AM' },
-                { text: 'I\'m adding some animations and improving the UI. Check this out!', sender: 'me', time: '10:35 AM' },
-                { text: 'Wow, this looks amazing! The new design is so much better.', sender: 'them', time: '10:38 AM' },
-                { text: 'Thanks! I\'ve been working on it for a few weeks. The animations make it feel more alive.', sender: 'me', time: '10:40 AM' },
-                { text: 'I can definitely tell! It\'s so much more engaging now.', sender: 'them', time: '10:42 AM' }
-            ];
-            
-            messages.forEach(msg => {
-                const messageElement = document.createElement('div');
-                messageElement.className = `msg ${msg.sender}`;
-                messageElement.innerHTML = `
-                    ${msg.text}
-                    <div class="msg-time">${msg.time}</div>
-                `;
-                messagesContainer.appendChild(messageElement);
-            });
-            
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Helper function to get initials
-        function getInitials(name) {
-            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        }
-
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-    </script>
+<script src="app.js"></script>
+<script>
+// Demo script to show functionality without app.js
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      tabs.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+  
+  // Send message functionality
+  const sendMsg = document.getElementById('sendMsg');
+  const messageInput = document.getElementById('messageInput');
+  const messages = document.getElementById('messages');
+  
+  sendMsg.addEventListener('click', function() {
+    const message = messageInput.value.trim();
+    if (message) {
+      const msgElement = document.createElement('div');
+      msgElement.className = 'msg me';
+      msgElement.innerHTML = `${message}<div class="msg-time">Just now</div>`;
+      messages.appendChild(msgElement);
+      messageInput.value = '';
+      messages.scrollTop = messages.scrollHeight;
+      
+      // Simulate reply
+      setTimeout(() => {
+        const replyElement = document.createElement('div');
+        replyElement.className = 'msg them';
+        replyElement.innerHTML = 'Thanks for your message!';
+        replyElement.innerHTML += '<div class="msg-time">Just now</div>';
+        messages.appendChild(replyElement);
+        messages.scrollTop = messages.scrollHeight;
+      }, 1000);
+    }
+  });
+  
+  messageInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      sendMsg.click();
+    }
+  });
+  
+  // Populate conversation list
+  const convoList = document.getElementById('convoList');
+  const conversations = [
+    { id: 1, name: 'Alex Johnson', lastMessage: 'Hey, how are you doing?', time: '10:42 AM', unread: true },
+    { id: 2, name: 'Taylor Swift', lastMessage: 'Thanks for the help yesterday!', time: 'Yesterday', unread: false },
+    { id: 3, name: 'Jamie Smith', lastMessage: 'Meeting at 3 PM today', time: 'Yesterday', unread: true },
+    { id: 4, name: 'Morgan Lee', lastMessage: 'Did you see the new project?', time: 'Wed', unread: false }
+  ];
+  
+  conversations.forEach(convo => {
+    const convoItem = document.createElement('div');
+    convoItem.className = 'convo-item';
+    convoItem.innerHTML = `
+      <div class="convo-avatar">${convo.name.split(' ').map(n => n[0]).join('').substring(0, 2)}</div>
+      <div class="convo-info">
+        <div class="convo-name">${convo.name}</div>
+        <div class="convo-preview">${convo.lastMessage}</div>
+      </div>
+      <div class="convo-time">${convo.time}</div>
+      ${convo.unread ? '<div class="unread-dot"></div>' : ''}
+    `;
+    convoList.appendChild(convoItem);
+  });
+  
+  // Populate friends list
+  const listPanel = document.getElementById('listPanel');
+  const friends = [
+    { id: 1, name: 'Alex Johnson', status: 'online' },
+    { id: 2, name: 'Taylor Swift', status: 'offline' },
+    { id: 3, name: 'Jamie Smith', status: 'online' },
+    { id: 4, name: 'Morgan Lee', status: 'offline' }
+  ];
+  
+  friends.forEach(friend => {
+    const friendItem = document.createElement('div');
+    friendItem.className = 'friend-item';
+    friendItem.innerHTML = `
+      <div class="friend-avatar">${friend.name.split(' ').map(n => n[0]).join('').substring(0, 2)}</div>
+      <div class="friend-info">
+        <div class="friend-name">${friend.name}</div>
+        <div class="friend-status ${friend.status}">${friend.status === 'online' ? 'Online' : 'Offline'}</div>
+      </div>
+    `;
+    listPanel.appendChild(friendItem);
+  });
+});
+</script>
 </body>
 </html>
