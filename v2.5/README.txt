@@ -1,0 +1,1 @@
+SermoLink fixed demo: working tabs + 20-avatar presets. Open home.html with Live Server in VS Code. Enable Firebase Auth (Google) and Firestore.
