@@ -314,6 +314,21 @@
         align-items: center;
       }
     }
+    
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body class="home-body">
@@ -389,8 +404,13 @@
     <p>&copy; 2023 SermoLink. All rights reserved.</p>
   </footer>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
   <script>
-    // Firebase configuration (simulated for demo)
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
       authDomain: "sermolink.firebaseapp.com",
@@ -401,82 +421,46 @@
       measurementId: "G-XKNFX885XW"
     };
 
-    // Simulate Firebase initialization
-    const firebase = {
-      initializeApp: (config) => {
-        console.log("Firebase initialized with config:", config);
-      },
-      auth: () => {
-        return {
-          onAuthStateChanged: (callback) => {
-            // Simulate user state change
-            setTimeout(() => {
-              callback(null); // No user signed in initially
-            }, 1000);
-          },
-          signInWithPopup: (provider) => {
-            console.log("Signing in with provider:", provider);
-            return Promise.resolve({
-              user: {
-                uid: "demo123",
-                displayName: "Demo User",
-                email: "demo@example.com"
-              }
-            });
-          },
-          signOut: () => {
-            console.log("Signing out");
-            return Promise.resolve();
-          },
-          currentUser: null
-        };
-      },
-      firestore: () => {
-        return {
-          collection: (name) => {
-            return {
-              doc: (id) => {
-                return {
-                  set: (data, options) => {
-                    console.log("Setting document:", data, options);
-                    return Promise.resolve();
-                  }
-                };
-              }
-            };
-          }
-        };
-      }
-    };
-
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // DOM Elements
+    const authBtn = document.getElementById('authBtn');
+    const joinNow = document.getElementById('joinNow');
+    const goHomeBtn = document.getElementById('goHomeBtn');
+
     // Run after DOM is ready
     window.addEventListener("DOMContentLoaded", () => {
-      const authBtn = document.getElementById('authBtn');
-      const joinNow = document.getElementById('joinNow');
-      const goHomeBtn = document.getElementById('goHomeBtn');
-
       // Auth state handling
       auth.onAuthStateChanged(user => {
         if (user) {
-          authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out (' + (user.displayName || user.email) + ')';
+          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+          authBtn.disabled = true;
+          
+          // Update user display name if available
+          const displayName = user.displayName || user.email || 'User';
+          authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out (' + displayName.split(' ')[0] + ')';
+          authBtn.disabled = false;
+          
           goHomeBtn.style.display = 'inline-flex';   // show Go Home button
           joinNow.style.display = 'none';             // hide Join Now button
           
-          // Simulate user data saving
+          // Save user data to Firestore
           const uref = db.collection('users').doc(user.uid);
           uref.set({
             uid: user.uid,
             displayName: user.displayName || '',
             email: user.email || '',
-            username: (user.displayName || user.email || '').split(' ')[0].toLowerCase()
-          }, { merge: true });
+            username: (user.displayName || user.email || '').split(' ')[0].toLowerCase(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).catch(error => {
+            console.error("Error saving user data:", error);
+          });
         } else {
           authBtn.innerHTML = '<i class="fas fa-user"></i> Sign In';
+          authBtn.disabled = false;
           goHomeBtn.style.display = 'none';           // hide Go Home button
           joinNow.style.display = 'inline-flex';     // show Join Now button
         }
@@ -485,23 +469,40 @@
       // Auth button click
       authBtn.addEventListener('click', () => {
         if (auth.currentUser) {
-          auth.signOut();
+          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing out...';
+          authBtn.disabled = true;
+          auth.signOut().catch(error => {
+            alert("Sign out error: " + error.message);
+            authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
+            authBtn.disabled = false;
+          });
         } else {
-          const provider = {}; // Simulated provider
-          auth.signInWithPopup(provider).catch(e => alert(e.message));
+          const provider = new firebase.auth.GoogleAuthProvider();
+          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+          authBtn.disabled = true;
+          auth.signInWithPopup(provider).catch(error => {
+            alert("Sign in error: " + error.message);
+            authBtn.innerHTML = '<i class="fas fa-user"></i> Sign In';
+            authBtn.disabled = false;
+          });
         }
       });
 
       // Join Now button click
       joinNow.addEventListener('click', () => {
-        const provider = {}; // Simulated provider
-        auth.signInWithPopup(provider).catch(e => alert(e.message));
+        const provider = new firebase.auth.GoogleAuthProvider();
+        joinNow.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+        joinNow.disabled = true;
+        auth.signInWithPopup(provider).catch(error => {
+          alert("Sign in error: " + error.message);
+          joinNow.innerHTML = '<i class="fas fa-arrow-right"></i> Join Now';
+          joinNow.disabled = false;
+        });
       });
 
       // Go to Home button click
       goHomeBtn.addEventListener('click', () => {
-        // Simulate navigation
-        alert("Navigating to home page...");
+        window.location.href = 'home.html';
       });
     });
   </script>
