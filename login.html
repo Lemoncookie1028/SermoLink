@@ -78,7 +78,7 @@
      apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
      authDomain: "sermolink.firebaseapp.com",
      projectId: "sermolink",
-     storageBucket: "sermolink.firebasestorage.app",
+     storageBucket: "sermolink.appspot.com",
      messagingSenderId: "960323297325",
      appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4"
     };
@@ -164,15 +164,24 @@
     }
 
     // Monitor auth state
-    auth.onAuthStateChanged(user=>{
-      if(user){
-        // Signed in
-        userInfo.style.display = 'block';
-        userText.innerHTML = `Signed in as <strong>${escapeHtml(user.email || user.displayName || 'Unknown')}</strong>`;
-      } else {
-        userInfo.style.display = 'none';
-      }
-    });
+    auth.onAuthStateChanged(user => {
+  if (user) {
+    // ✅ User is signed in
+    userInfo.style.display = 'block';
+    userText.innerHTML = `Signed in as <strong>${
+      escapeHtml(user.email || user.displayName || 'Unknown')
+    }</strong>`;
+
+    // 🔀 Redirect to home.html (or any page you want)
+    if (window.location.pathname !== "/profile.html") {
+      window.location.href = "profile.html";
+    }
+
+  } else {
+    // ❌ User is signed out
+    userInfo.style.display = 'none';
+  }
+});
 
     // small helper
     function escapeHtml(s){

@@ -714,10 +714,9 @@ body::before {
   <div class="auth-card">
     <h2>Welcome to SermoLink</h2>
     <p>Connect with friends and colleagues</p>
-    <button id="googleSignIn" class="btn auth-btn">
-      <span id="signInText">Sign in with Google</span>
-      <span id="signInSpinner" class="spinner" style="display:none;"></span>
-    </button>
+   <button id="googleSignIn" class="btn auth-btn">
+  Sign in
+</button>
     <div class="auth-message">
       By signing in, you agree to our Terms of Service
     </div>
@@ -841,10 +840,10 @@ function loadConversations() {
   
   // Add sample conversations (in a real app, these would come from Firestore)
   const conversations = [
-    { id: 1, name: 'Alex Johnson', lastMessage: 'Hey, how are you doing?', time: '10:42 AM', unread: true },
-    { id: 2, name: 'Taylor Swift', lastMessage: 'Thanks for the help yesterday!', time: 'Yesterday', unread: false },
-    { id: 3, name: 'Jamie Smith', lastMessage: 'Meeting at 3 PM today', time: 'Yesterday', unread: true },
-    { id: 4, name: 'Morgan Lee', lastMessage: 'Did you see the new project?', time: 'Wed', unread: false }
+    { id: 1, name: 'Arthur mitchell', lastMessage: 'Hey, how are you doing Dexter Morgan?', time: '10:42 AM', unread: true },
+    { id: 2, name: 'Joe Goldberg', lastMessage: 'did you have a great time?!', time: 'Yesterday', unread: false },
+    { id: 3, name: 'Brian mosser', lastMessage: 'The operation is happening tomorrow!', time: 'Yesterday', unread: true },
+    { id: 4, name: 'Dexter Morgan', lastMessage: 'Did you see the blood report?', time: 'Wed', unread: false }
   ];
   
   conversations.forEach(convo => {
@@ -870,10 +869,10 @@ function loadFriends() {
   
   // Add sample friends (in a real app, these would come from Firestore)
   const friends = [
-    { id: 1, name: 'Alex Johnson', status: 'online' },
-    { id: 2, name: 'Taylor Swift', status: 'offline' },
-    { id: 3, name: 'Jamie Smith', status: 'online' },
-    { id: 4, name: 'Morgan Lee', status: 'offline' }
+    { id: 1, name: 'Arthur mitchell', status: 'offline' },
+    { id: 2, name: 'Joe Goldberg', status: 'online' },
+    { id: 3, name: 'Brian mosser', status: 'offline' },
+    { id: 4, name: 'Dexter Morgan', status: 'online' }
   ];
   
   friends.forEach(friend => {
@@ -945,9 +944,16 @@ sendRequest.addEventListener('click', () => {
   }
 });
 
+const googleBtn = document.getElementById("googleSignIn");
+
+googleBtn.addEventListener("click", () => {
+  window.location.href = "login.html"; // redirect to login page
+});
+
 // Edit profile
 profileBtn.addEventListener('click', () => {
   alert('Profile editing would open here');
+  window.location.href = "profile.html";
 });
 </script>
 </body>
