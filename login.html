@@ -52,12 +52,12 @@
 
     <div style="height:12px"></div>
 
-    <div class="small">or continue with</div>
+    <div class="small"></div>
     <div style="height:8px"></div>
     <div class="social">
     </div>
 
-    <div class="note">This is a basic demo. and change style and link with style.css.</div>
+    
 
     <div id="userInfo" style="display:none" class="signed-in">
       <div id="userText"></div>
@@ -78,7 +78,8 @@
      projectId: "sermolink",
      storageBucket: "sermolink.appspot.com",
      messagingSenderId: "960323297325",
-     appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4"
+     appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4",
+     measurementId: "G-XKNFX885XW"
     };
 
     // Initialize Firebase
@@ -137,21 +138,6 @@
       } catch(err){
         showError(err.message || err.toString());
       }
-    });
-
-    googleBtn.addEventListener('click', async ()=>{
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try{
-        await auth.signInWithPopup(provider);
-      } catch(err){ showError(err.message || err.toString()); }
-    });
-
-    microsoftBtn.addEventListener('click', async ()=>{
-      // Microsoft via Firebase OAuthProvider (requires enabling Microsoft provider in Firebase Console)
-      const msProvider = new firebase.auth.OAuthProvider('microsoft.com');
-      try{
-        await auth.signInWithPopup(msProvider);
-      } catch(err){ showError(err.message || err.toString()); }
     });
 
     signOutBtn.addEventListener('click', ()=>auth.signOut());
