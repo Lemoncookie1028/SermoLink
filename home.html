@@ -19,6 +19,12 @@
   --text-light: #e6f1ff;
   --card-radius: 16px;
   --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --primary: #16B4B8;
+  --primary-dark: #109EA1;
+  --secondary: #0d7a7d;
+  --light: #f0f9fa;
+  --dark: #0a3d3f;
+  --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 * {
@@ -523,7 +529,7 @@ body::before {
 #messageInput:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
+  box-shadow: 0 0 0 3px #16b4b84d;
 }
 
 #sendMsg {
@@ -539,12 +545,12 @@ body::before {
   align-items: center;
   justify-content: center;
   transition: var(--transition);
-  box-shadow: 0 4px 10px rgba(100, 255, 218, 0.3);
+  box-shadow: 0 4px 10px #16b4b84d;
 }
 
 #sendMsg:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 15px rgba(100, 255, 218, 0.4);
+  box-shadow: 0 6px 15px #16b4b84d;
 }
 
 #sendMsg:disabled {
@@ -597,7 +603,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(10, 25, 47, 0.9);
+  background: rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -606,13 +612,13 @@ body::before {
 }
 
 .auth-card {
-  background: rgba(17, 34, 64, 0.9);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 20px;
   padding: 40px;
   width: 90%;
   max-width: 400px;
   text-align: center;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 50px rgba(57, 56, 56, 0.5);
   border: 1px solid rgba(100, 255, 218, 0.2);
   animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
