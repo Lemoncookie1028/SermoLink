@@ -90,7 +90,7 @@ body::before {
 }
 
 .logoh img {
-  height: 40px;
+  height: 50px;
   width: auto;
   filter: drop-shadow(0 0 5px rgba(100, 255, 218, 0.3));
   transition: var(--transition);
@@ -168,7 +168,7 @@ body::before {
 }
 
 .tab {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(171, 170, 170, 0.05);
   border: none;
   border-radius: 10px;
   padding: 14px 16px;
@@ -215,7 +215,7 @@ body::before {
 }
 
 .panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(200, 197, 197, 0.03);
   padding: 15px;
   border-radius: 12px;
 }
@@ -323,7 +323,7 @@ body::before {
 }
 
 .online {
-  color: #64ffda;
+  color: #47f0c8;
 }
 
 .bottom-panel {
@@ -653,8 +653,8 @@ body::before {
 <div class="app">
 <aside class="sidebar">
 <div class="logoh">
-  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzY0ZmZkYSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgMThjLTQuNDEgMC04LTMuNTktOC04czMuNTktOCA4LTggOCAzLjU5IDggOC0zLjU5IDgtOCA4eiIvPjxwYXRoIGQ9Ik0xMiA2Yy0zLjMxIDAtNiAyLjY5LTYgNnMyLjY5IDYgNiA2IDYtMi42OSA2LTYtMi42OS02LTYtNnoiLz48cGF0aCBkPSJNMTIgMTBjLTEuMSAwLTIgLjktMiAycy45IDIgMiAycy0uOS0yLTItMnoiLz48L3N2Zz4=" alt="SermoLink">
-  <div class="brand">SermoLink</div>
+  <img src="logo4.png" alt="SermoLink">
+  <div class="brand"></div>
 </div>
 
 <div class="profile">
@@ -716,19 +716,6 @@ body::before {
 </div>
 
 <!-- Authentication Overlay -->
-<div id="authOverlay" class="auth-overlay">
-  <div class="auth-card">
-    <h2>Welcome to SermoLink</h2>
-    <p>Connect with friends and colleagues</p>
-   <button id="googleSignIn" class="btn auth-btn">
-  Sign in
-</button>
-    <div class="auth-message">
-      By signing in, you agree to our Terms of Service
-    </div>
-  </div>
-</div>
-
 <script>
 // Firebase configuration
 const firebaseConfig = {
