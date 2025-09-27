@@ -14,13 +14,58 @@
       --dark: #0a3d3f;
       --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f172a;color:#e6eef8;margin:0}
-    .card{background:#0b1220;border-radius:12px;padding:28px;width:360px;box-shadow:0 8px 30px rgba(2,6,23,.7)}
-    h1{margin:0 0 14px;font-size:20px}
-    .switch{display:flex;gap:8px;margin-bottom:12px}
-    .input{width:100%;padding:10px;border-radius:8px;border:1px solid #182032;background:#071021;color:inherit;margin-bottom:10px}
-    .btn{width:100%;padding:10px;border-radius:8px;border:0;background:#2563eb;color:white;font-weight:600;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid #2a3b57;color:#bcd3ff}
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background: linear-gradient(135deg, #f0f9fa 0%, #e6f7f8 100%);color:#ffffff;margin:0}
+    .card{background:#19191a76;border-radius:12px;align-items: center;padding:28px;width:380px;box-shadow:5000 10px 30px #434242c7}    h1{margin:0 0 14px;font-size:20px}
+    .switch{display:flex;gap:8px;align-items: center;margin-bottom:12px}
+    .input{width:80%;align-items: center;padding:10px;border-radius:8px;border: 0.5px transparent #16b4b866;background:#12c5c866;color:inherit;margin-bottom:10px}
+    .btn {
+      background: var(--primary);
+      color: rgb(255, 255, 255);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px #16b4b84d;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+        .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      animation: fadeInDown 0.8s ease-out;
+    }
+     .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      height: 40px;
+      transition: var(--transition);
+      top: 0;
+      display: flex;
+      z-index: 1000;
+      position: fixed;
+      align-items: left;
+      justify-content: space-between;
+    }
+
+    .logo img:hover {
+      transform: scale(1.05);
+    }
+    .btn.secondary{background:#16b4b866;border:1px transparent #12c5c866;color: #ffffff;}
     .social{display:flex;gap:10px}
     .social button{flex:1;padding:10px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
     .google{background:#fff;color:#111}
@@ -34,10 +79,13 @@
   </style>
 </head>
 <body>
-  <div class="card">
+    <div class="logo img">
+     <div class="logo">
+      <img src="logo4.png" alt="SermoLink">
+    <header>
+    <main class="card">
     <h1 id="formTitle">sign up</h1>
-
-    <div class="switch">
+      <div class="switch">
       <button id="toggleSignup" class="btn secondary">Sign up</button>
       <button id="toggleLogin" class="btn secondary">Log in</button>
     </div>
@@ -47,8 +95,8 @@
     <input id="email" class="input" type="email" placeholder="Email" autocomplete="email" />
     <input id="password" class="input" type="password" placeholder="Password" autocomplete="current-password" />
 
-    <div class="row">
-      <button id="submitBtn" class="btn">Sign up</button>
+    <main class="row">
+      <button id="submitBtn" class="btn secondary">Sign up</button>
     </div>
 
     <div style="height:12px"></div>
