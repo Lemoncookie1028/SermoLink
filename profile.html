@@ -1,149 +1,14 @@
-<!-- profile html -->
+   <!-- profile html -->
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>SermoLink - Profile</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- 🔹 SAME STYLES FROM index.html -->
-<style>
-    :root {
-      --font-family: Inter, system-ui, Arial, sans-serif;
-      --primary: #16B4B8;
-      --primary-dark: #109EA1;
-      --secondary: #f8f9fa;
-      --background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      --text-light: #ffffff;
-    }
-
-    body {
-      margin: 0;
-      font-family: var(--font-family);
-      background: var(--background);
-      color: var(--text-light);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    /* Top bar */
-    .top-bar {
-      height: 60px;
-      background: linear-gradient(135deg, #16B4B8, #109EA1);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-    .top-bar img.logo {
-      height: 40px;
-    }
-    .top-bar .user-pfp {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid var(--primary);
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .top-bar .user-pfp:hover {
-      transform: scale(1.1);
-      border-color: var(--primary-dark);
-    }
-    .top-bar .user-pfp img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* Layout with sidebar */
-    .layout {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 70px;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 0;
-      box-shadow: 2px 0 6px rgba(0,0,0,0.5);
-    }
-    .sidebar a {
-      color: var(--text-light);
-      text-decoration: none;
-      font-size: 24px;
-      margin: 15px 0;
-      transition: transform 0.2s, color 0.2s;
-    }
-    .sidebar a:hover {
-      transform: scale(1.2);
-      color: var(--primary);
-    }
-
-    /* Content area */
-    .content {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    .profile-card {
-      max-width: 600px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
-    .profile-card h2 {
-      margin-top: 0;
-      text-align: center;
-    }
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 50px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      box-shadow: 0 4px 15px #16b4b84d;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-  </style>
-
-  <!-- Firebase scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SermoLink-Profile</title>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <!-- SAME HEADER AS OTHER PAGES -->
-  <div class="top-bar">
-    <img src="logo.png" alt="SermoLink Logo" class="logo">
-    </div>
-  
-    <header class="topbar">
-    </div>
-    <div class="top-right">
-      <a href="home.html" class="btn"><i class="fas fa-home"></i> Home</a>
-    </div>
-  </header>
-
-  <!-- PAGE CONTENT -->
   <div class="profile-page">
     <h2 id="pTitle">Profile</h2>
     <div class="profile-card">
@@ -153,22 +18,11 @@
         <div id="usernameStatus" class="small muted"></div>
         <div><label>Display name</label><input id="pDisplay" /></div>
         <div><label>Bio</label><textarea id="pBio" rows="3"></textarea></div>
-        <div>
-          <label>Choose avatar</label>
-          <div id="avatarChoices" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px"></div>
-        </div>
-        <div style="margin-top:12px">
-          <button id="saveProfile" class="btn">Save</button>
-          <a id="back" href="home.html" class="btn">Back</a>
-        </div>
+        <div><label>Choose avatar</label><div id="avatarChoices" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px"></div></div>
+        <div style="margin-top:12px"><button id="saveProfile" class="btn">Save</button> <a id="back" href="index.html" class="btn">Back</a></div>
       </div>
     </div>
   </div>
-
-  <!-- SAME FOOTER -->
-  <footer>
-    <p>&copy; 2023 SermoLink. All rights reserved.</p>
-  </footer>
 
 <script>
   const firebaseConfig = {
@@ -198,22 +52,14 @@
   let editingUid = null;
   let usernameLocked = false;
 
-  function setStatus(msg, ok){
-    usernameStatus.textContent = msg;
-    usernameStatus.style.color = ok ? '#4caf50' : '#ff5252';
-  }
+  function setStatus(msg, ok){ usernameStatus.textContent = msg; usernameStatus.style.color = ok ? '#4caf50' : '#ff5252'; }
 
   function renderAvatars(selected){
     avatarChoices.innerHTML='';
     presets.forEach(p=>{
-      const b = document.createElement('button');
-      b.className='btn'; b.style.padding='8px'; b.textContent = p;
+      const b = document.createElement('button'); b.className='btn'; b.style.padding='8px'; b.textContent = p;
       if(p===selected) b.style.outline='3px solid rgba(37,99,235,0.6)';
-      b.onclick = ()=>{
-        pAvatar.textContent = p;
-        avatarChoices.querySelectorAll('button').forEach(x=>x.style.outline='');
-        b.style.outline='3px solid rgba(37,99,235,0.6)';
-      };
+      b.onclick = ()=>{ pAvatar.textContent = p; avatarChoices.querySelectorAll('button').forEach(x=>x.style.outline=''); b.style.outline='3px solid rgba(37,99,235,0.6)'; };
       avatarChoices.appendChild(b);
     });
   }
@@ -230,15 +76,8 @@
     pDisplay.value = data.displayName || currentUser.displayName || '';
     pBio.value = data.bio || '';
     renderAvatars(data.avatar);
-    if(editingUid !== currentUser.uid){
-      pUsername.disabled=true; pDisplay.disabled=true; pBio.disabled=true;
-      saveBtn.style.display='none'; avatarChoices.style.display='none';
-    }
-    if(data.username){
-      usernameLocked = true;
-      pUsername.disabled = editingUid !== currentUser.uid;
-      if(editingUid===currentUser.uid) setStatus('Username is set and locked', true);
-    }
+    if(editingUid !== currentUser.uid){ pUsername.disabled=true; pDisplay.disabled=true; pBio.disabled=true; saveBtn.style.display='none'; avatarChoices.style.display='none'; }
+    if(data.username){ usernameLocked = true; pUsername.disabled = editingUid !== currentUser.uid; if(editingUid===currentUser.uid) setStatus('Username is set and locked', true); }
   });
 
   let checkTimer = null;
@@ -250,8 +89,7 @@
     if(!v) return setStatus('Enter a username', false);
     checkTimer = setTimeout(async ()=>{
       const snap = await db.collection('users').where('username','==', v).get();
-      if(!snap.empty){ setStatus('Username taken', false); }
-      else { setStatus('Username available', true); }
+      if(!snap.empty){ setStatus('Username taken', false); } else { setStatus('Username available', true); }
     }, 600);
   });
 
@@ -263,12 +101,7 @@
       const snap = await db.collection('users').where('username','==', uname).get();
       if(!snap.empty) return alert('Username already taken');
     }
-    await db.collection('users').doc(currentUser.uid).set({
-      username: uname,
-      displayName: pDisplay.value||'',
-      bio: pBio.value||'',
-      avatar: pAvatar.textContent||''
-    }, { merge: true });
+    await db.collection('users').doc(currentUser.uid).set({ username: uname, displayName: pDisplay.value||'', bio: pBio.value||'', avatar: pAvatar.textContent||'' }, { merge: true });
     alert('Profile saved');
     window.location.href = 'home.html';
   });
