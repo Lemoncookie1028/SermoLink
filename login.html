@@ -4,23 +4,30 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SermoLink — Signup / Login</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root{
-     --font-family:Inter,system-ui,Arial,sans-serif
-    --primary: #16B4B8;
-    --primary-dark: #109EA1;
-      --secondary: #0d7a7d;
-      --light: #f0f9fa;
+     --primary: #16B4B8;
+     --primary-dark: #109EA1;
+      --secondary: #0jd7a7d;
+      --light: #808080;
       --dark: #0a3d3f;
       --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background: linear-gradient(135deg, #f0f9fa 0%, #e6f7f8 100%);color:#ffffff;margin:0}
-    .card{background:#19191a76;border-radius:12px;align-items: center;padding:28px;width:380px;box-shadow:5000 10px 30px #434242c7}    h1{margin:0 0 14px;font-size:20px}
+    .quicksand{
+      font-family: "Quicksand", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+    }
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background: linear-gradient(135deg, #b26aed 0%, #5eacb0 100%);color:#dcdcdc;margin:0}
+    .card{background:linear-gradient(135deg, #5f9fe3 0%, #9dd9ef 100%);border-radius:40px;align-items: center;padding:50px;width:400px;box-shadow:5000 10px 30px #4c87e7}    h1{margin:0 0 14px;font-size:20px}
     .switch{display:flex;gap:8px;align-items: center;margin-bottom:12px}
-    .input{width:80%;align-items: center;padding:10px;border-radius:8px;border: 0.5px transparent #16b4b866;background:#12c5c866;color:inherit;margin-bottom:10px}
+    .input{width:80%;align-items: center;padding:10px;border-radius:8px;border: 0.5px transparent #00000066;background:linear-gradient(135deg, #252a63 0%, #1c878d 100%);color:#5b5555;margin-bottom:10px}
     .btn {
-      background: var(--primary);
-      color: rgb(255, 255, 255);
+      background: linear-gradient(135deg, #1c959b 0%, #333a8b 100%);
+      color: rgb(0, 0, 0);
       border: none;
       padding: 12px 24px;
       border-radius: 50px;
@@ -65,7 +72,7 @@
     .logo img:hover {
       transform: scale(1.05);
     }
-    .btn.secondary{background:#16b4b866;border:1px transparent #12c5c866;color: #ffffff;}
+    .btn.secondary{background: linear-gradient(135deg, #1d8c92 0%, #2a3075 100%);color:#ffffff;border:1px transparent #12c5c866;color: #ffffff;}
     .social{display:flex;gap:10px}
     .social button{flex:1;padding:10px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
     .google{background:#fff;color:#111}
@@ -81,6 +88,7 @@
 <body>
     <div class="logo img">
      <div class="logo">
+      <div class="quicksand">
     <header>
     <main class="card">
     <h1 id="formTitle">sign up</h1>
@@ -93,7 +101,7 @@
 
     <input id="email" class="input" type="email" placeholder="Email" autocomplete="email" />
     <input id="password" class="input" type="password" placeholder="Password" autocomplete="current-password" />
-
+    <input id="pUsername" class="input"  style="display:none" type="username" placeholder="username"/>
     <main class="row">
       <button id="submitBtn" class="btn secondary">Sign up</button>
     </div>
@@ -135,6 +143,8 @@
     const auth = firebase.auth();
 
     // Elements
+    const pDisplay = document.getElementById('pDisplay');
+    const pUsername = document.getElementById('pUsername');
     const toggleSignup = document.getElementById('toggleSignup');
     const toggleLogin = document.getElementById('toggleLogin');
     const formTitle = document.getElementById('formTitle');
@@ -155,9 +165,14 @@
       if(mode === 'signup'){
         formTitle.textContent = 'Create account';
         submitBtn.textContent = 'Create account';
+        pUsername.style.display = 'inline-flex'
+        pUsername.disabled = false
+        pDisplay.style
       } else {
         formTitle.textContent = 'Log in';
         submitBtn.textContent = 'Log in';
+        pUsername.style.display = 'none';
+      
       }
       errorBox.style.display = 'none';
     }
@@ -224,6 +239,19 @@
 
     // Set initial mode
     setMode('signup');
+    saveBtn.addEventListener('click', async ()=>{
+    if(!currentUser) return alert('Not signed in');
+    const uname = (pUsername.value||'').trim().toLowerCase();
+    if(!uname) return alert('Choose a username');
+    if(!usernameLocked){
+      const snap = await db.collection('users').where('username','==', uname).get();
+      if(!snap.empty) return alert('Username already taken');
+    }
+    await db.collection('users').doc(currentUser.uid).set({
+      username: uname,
+      displayName: pDisplay.value||'',
+    }, { merge: true });
+      });
   </script>
 </body>
 </html>
