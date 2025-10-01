@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SermoLink</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #16B4B8;
+      --primary-dark: #109EA1;
+      --secondary: #0d7a7d;
+      --light: #f0f9fa;
+      --dark: #0a3d3f;
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0f9fa 0%, #e6f7f8 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Header Styles */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      height: 40px;
+      transition: var(--transition);
+    }
+
+    .logo img:hover {
+      transform: scale(1.05);
+    }
+
+    .top-right {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px #16b4b84d;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(22, 180, 184, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Main Content */
+    .home-main {
+      padding: 120px 5% 50px;
+      text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 70px;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .lead {
+      font-size: 1.5rem;
+      color: var(--secondary);
+      max-width: 700px;
+      margin: 0 auto 40px;
+      animation: fadeInUp 1s ease-out 0.2s forwards;
+      opacity: 0;
+    }
+
+    .cta {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 18px 40px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 25px rgba(22, 180, 184, 0.4);
+      margin-bottom: 70px;
+      animation: fadeInUp 1s ease-out 0.4s forwards;
+      opacity: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta:hover {
+      background: var(--primary-dark);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(22, 180, 184, 0.5);
+    }
+
+    .cta:active {
+      transform: translateY(0);
+    }
+
+    .cta::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: 0.5s;
+    }
+
+    .cta:hover::after {
+      left: 100%;
+    }
+
+    .dashboard {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(16, 158, 161, 0.2);
+      animation: fadeIn 1s ease-out 0.6s forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .dashboard img {
+      width: 100%;
+      display: block;
+      transition: var(--transition);
+    }
+
+    .dashboard:hover img {
+      transform: scale(1.02);
+    }
+
+    .dashboard::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(22, 180, 184, 0.1), rgba(16, 158, 161, 0.1));
+      pointer-events: none;
+      border-radius: 20px;
+    }
+
+    /* Features Section */
+    .features {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin: 100px 0;
+      padding: 0 5%;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+      animation: fadeInUp 0.8s ease-out;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.2s; }
+    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(22, 180, 184, 0.2);
+    }
+
+    .feature-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      color: white;
+      font-size: 30px;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 15px;
+      color: var(--dark);
+    }
+
+    .feature-card p {
+      color: var(--secondary);
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 30px;
+      margin-top: 50px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .lead {
+        font-size: 1.2rem;
+      }
+      
+      .topbar {
+        padding: 1rem 5%;
+      }
+      
+      .home-main {
+        padding: 100px 5% 30px;
+      }
+      
+      .features {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="home-body">
+
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo img">
+      <img src="logo4.png" alt="SermoLink">
+    </div>
+    <div class="top-right">
+      <button id="authBtn" class="btn"><i class="fas fa-user"></i> Sign In</button>
+      <button id="goHomeBtn" class="btn" style="display:none;"><i class="fas fa-home"></i> Go to Home</button>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <div class="hero">
+      <h1>Welcome to SermoLink</h1>
+      <p class="lead">Connecting Conversations, Seamlessly.</p>
+      <button id="joinNow" class="cta"><i class="fas fa-arrow-right"></i> Join Now</button>
+    </div>
+    
+    <div class="dashboard">
+      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="800" height="400" fill="#f0f9fa"/>
+        <rect x="50" y="50" width="700" height="300" rx="15" fill="white" stroke="#16B4B8" stroke-width="2"/>
+        <rect x="70" y="70" width="660" height="40" rx="5" fill="#e6f7f8"/>
+        <circle cx="100" cy="90" r="10" fill="#16B4B8"/>
+        <circle cx="130" cy="90" r="10" fill="#109EA1"/>
+        <circle cx="160" cy="90" r="10" fill="#0d7a7d"/>
+        <rect x="70" y="130" width="200" height="180" rx="10" fill="#e6f7f8"/>
+        <rect x="290" y="130" width="440" height="180" rx="10" fill="#e6f7f8"/>
+        <text x="100" y="160" font-family="Arial" font-size="16" fill="#0a3d3f">Dashboard</text>
+        <text x="320" y="160" font-family="Arial" font-size="16" fill="#0a3d3f">Conversation Feed</text>
+        <rect x="80" y="180" width="180" height="20" rx="5" fill="#16B4B8" opacity="0.7"/>
+        <rect x="80" y="210" width="150" height="20" rx="5" fill="#109EA1" opacity="0.7"/>
+        <rect x="80" y="240" width="170" height="20" rx="5" fill="#0d7a7d" opacity="0.7"/>
+        <rect x="300" y="180" width="420" height="20" rx="5" fill="#16B4B8" opacity="0.5"/>
+        <rect x="300" y="210" width="380" height="20" rx="5" fill="#109EA1" opacity="0.5"/>
+        <rect x="300" y="240" width="400" height="20" rx="5" fill="#0d7a7d" opacity="0.5"/>
+        <rect x="300" y="270" width="350" height="20" rx="5" fill="#16B4B8" opacity="0.5"/>
+        <rect x="300" y="300" width="300" height="20" rx="5" fill="#109EA1" opacity="0.5"/>
+      </svg>
+    </div>
+    
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-comments"></i>
+        </div>
+        <h3>Real-time Chat</h3>
+        <p>Engage in seamless conversations with team members in real-time with our advanced messaging system.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3>Secure Platform</h3>
+        <p>Your conversations are protected with enterprise-grade security and end-to-end encryption.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-sync-alt"></i>
+        </div>
+        <h3>Cross-Platform Sync</h3>
+        <p>Access your conversations from any device with seamless synchronization across all platforms.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 SermoLink. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
+      authDomain: "sermolink.firebaseapp.com",
+      projectId: "sermolink",
+      storageBucket: "sermolink.firebasestorage.app",
+      messagingSenderId: "960323297325",
+      appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4",
+      measurementId: "G-XKNFX885XW"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // DOM Elements
+    const authBtn = document.getElementById('authBtn');
+    const joinNow = document.getElementById('joinNow');
+    const goHomeBtn = document.getElementById('goHomeBtn');
+
+    // Run after DOM is ready
+    window.addEventListener("DOMContentLoaded", () => {
+      // Auth state handling
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+          authBtn.disabled = true;
+          
+          // Update user display name if available
+          const displayName = user.displayName || user.email || 'User';
+          authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out (' + displayName.split(' ')[0] + ')';
+          authBtn.disabled = false;
+          
+          goHomeBtn.style.display = 'inline-flex';   // show Go Home button
+          joinNow.style.display = 'none';             // hide Join Now button
+          
+          // Save user data to Firestore
+          const uref = db.collection('users').doc(user.uid);
+          uref.set({
+            uid: user.uid,
+            displayName: user.displayName || '',
+            email: user.email || '',
+            username: (user.displayName || user.email || '').split(' ')[0].toLowerCase(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).catch(error => {
+            console.error("Error saving user data:", error);
+          });
+        } else {
+          authBtn.innerHTML = '<i class="fas fa-user"></i> Sign In';
+          authBtn.disabled = false;
+          goHomeBtn.style.display = 'none';           // hide Go Home button
+          joinNow.style.display = 'inline-flex';     // show Join Now button
+        }
+      });
+
+      // Auth button click
+      authBtn.addEventListener('click', () => {
+        if (auth.currentUser) {
+          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing out...';
+          authBtn.disabled = true;
+          auth.signOut().catch(error => {
+            alert("Sign out error: " + error.message);
+            authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
+            authBtn.disabled = false;
+          });
+        } else {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+          authBtn.disabled = true;
+          auth.signInWithPopup(provider).catch(error => {
+            alert("Sign in error: " + error.message);
+            authBtn.innerHTML = '<i class="fas fa-user"></i> Sign In';
+            authBtn.disabled = false;
+          });
+        }
+      });
+
+      // Join Now button click
+      joinNow.addEventListener('click', () => {
+        window.location.href = 'login.html';
+        joinNow.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+        joinNow.disabled = true;
+        auth.signInWithPopup(provider).catch(error => {
+          alert("Sign in error: " + error.message);
+          joinNow.innerHTML = '<i class="fas fa-arrow-right"></i> Join Now';
+          joinNow.disabled = false;
+        });
+      });
+
+      // Go to Home button click
+      goHomeBtn.addEventListener('click', () => {
+        window.location.href = 'home.html';
+      });
+    });
+  </script>
+</body>
+</html>
