@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SermoLink — Signup / Login</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+     --primary: #16B4B8;
+     --primary-dark: #109EA1;
+      --secondary: #0jd7a7d;
+      --light: #808080;
+      --dark: #0a3d3f;
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .quicksand{
+      font-family: "Quicksand", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+    }
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background: linear-gradient(135deg, #6aedd5 0%, #5eacb0 100%);color:#dcdcdc;margin:0}
+    .card{background:linear-gradient(135deg, #74acc0 0%, #5fe3a3 100%);border-radius:40px;align-items: center;padding:50px;width:400px;box-shadow:5000 10px 30px #4c87e7}    h1{margin:0 0 14px;font-size:20px}
+    .switch{display:flex;gap:8px;align-items: center;margin-bottom:12px}
+    .input{width:80%;align-items: center;padding:10px;border-radius:8px;border: 0.5px transparent #00000066;background:linear-gradient(135deg, #252a63 0%, #1c878d 100%);color:#5b5555;margin-bottom:10px}
+    .btn {
+      background: linear-gradient(135deg, #1c959b 0%, #333a8b 100%);
+      color: rgb(0, 0, 0);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px #16b4b84d;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+        .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      animation: fadeInDown 0.8s ease-out;
+    }
+     .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      height: 40px;
+      transition: var(--transition);
+      top: 0;
+      display: flex;
+      z-index: 1000;
+      position: fixed;
+      align-items: left;
+      justify-content: space-between;
+    }
+
+    .logo img:hover {
+      transform: scale(1.05);
+    }
+    .btn.secondary{background: linear-gradient(135deg, #1d8c92 0%, #2a3075 100%);color:#ffffff;border:1px transparent #12c5c866;color: #ffffff;}
+    .social{display:flex;gap:10px}
+    .social button{flex:1;padding:10px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+    .google{background:#fff;color:#111}
+    .microsoft{background:#2b2b2b;color:#fff}
+    .small{font-size:13px;color:#9fb0d8;margin-top:10px;text-align:center}
+    .signed-in{background:#071021;padding:12px;border-radius:8px;margin-top:12px}
+    .error{color:#b63b3b;font-size:13px;margin-bottom:8px}
+    .note{font-size:12px;color:#9fb0d8;margin-top:8px}
+    .row{display:flex;gap:8px}
+  
+  </style>
+</head>
+<body>
+    <div class="logo img">
+     <div class="logo">
+      <div class="quicksand">
+    <header>
+    <main class="card">
+    <h1 id="formTitle">sign up for our news letter</h1>
+      <div class="switch">
+    <div id="error" class="error" style="display:none"></div>
+
+    <input id="email-mail" class="input" type="email" placeholder="Email" autocomplete="email" />
+    <main class="row">
+      <button id="signupmail" class="btn secondary">Sign up</button>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="small"></div>
+    <div style="height:8px"></div>
+    <div class="social">
+    </div>
+
+    
+
+  </div>
+
+  <!-- Firebase Compat SDKs (works with older firebase.auth() API) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // TODO: replace with your firebase config
+    const firebaseConfig = {
+     apiKey: "AIzaSyDBAZUmEG3M35dY_upPn8qYx0i2POhcmw8",
+     authDomain: "sermolink.firebaseapp.com",
+     projectId: "sermolink",
+     storageBucket: "sermolink.appspot.com",
+     messagingSenderId: "960323297325",
+     appId: "1:960323297325:web:aa5f36f37a6a961c7b98a4",
+     measurementId: "G-XKNFX885XW"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Elements
+    const pDisplay = document.getElementById('pDisplay');
+    const pUsername = document.getElementById('pUsername');
+    const toggleSignup = document.getElementById('toggleSignup');
+    const toggleLogin = document.getElementById('toggleLogin');
+    const formTitle = document.getElementById('formTitle');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const microsoftBtn = document.getElementById('microsoftBtn');
+    const errorBox = document.getElementById('error');
+    const userInfo = document.getElementById('userInfo');
+    const userText = document.getElementById('userText');
+    const signOutBtn = document.getElementById('signOutBtn');
+
+    let mode = 'signup'; // or 'login'
+
+    function setMode(newMode){
+      mode = newMode;
+      if(mode === 'signup'){
+        formTitle.textContent = 'Create account';
+        submitBtn.textContent = 'Create account';
+        pUsername.style.display = 'inline-flex'
+        pUsername.disabled = false
+        pDisplay.style
+      } else {
+        formTitle.textContent = 'Log in';
+        submitBtn.textContent = 'Log in';
+        pUsername.style.display = 'none';
+      
+      }
+      errorBox.style.display = 'none';
+    }
+
+    toggleSignup.addEventListener('click', ()=>setMode('signup'));
+    toggleLogin.addEventListener('click', ()=>setMode('login'));
+
+    submitBtn.addEventListener('click', async ()=>{
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      errorBox.style.display = 'none';
+
+      if(!email || !password){
+        showError('Email and password are required');
+        return;
+      }
+
+      try{
+        if(mode === 'signup'){
+          // create
+          await auth.createUserWithEmailAndPassword(email, password);
+        } else {
+          // login
+          await auth.signInWithEmailAndPassword(email, password);
+        }
+      } catch(err){
+        showError(err.message || err.toString());
+      }
+    });
+
+    signOutBtn.addEventListener('click', ()=>auth.signOut());
+
+    function showError(msg){
+      errorBox.style.display = 'block';
+      errorBox.textContent = msg;
+    }
+
+    // Monitor auth state
+    auth.onAuthStateChanged(user => {
+  if (user) {
+    // ✅ User is signed in
+    userInfo.style.display = 'block';
+    userText.innerHTML = `Signed in as <strong>${
+      escapeHtml(user.email || user.displayName || 'Unknown')
+    }</strong>`;
+
+    // 🔀 Redirect to home.html (or any page you want)
+    if (window.location.pathname !== "/profile.html") {
+      window.location.href = "profile.html";
+    }
+
+  } else {
+    // ❌ User is signed out
+    userInfo.style.display = 'none';
+  }
+});
+
+    // small helper
+    function escapeHtml(s){
+      return String(s).replace(/[&<>\"']/g, (c)=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    // Set initial mode
+    setMode('signup');
+    saveBtn.addEventListener('click', async ()=>{
+    if(!currentUser) return alert('Not signed in');
+    const uname = (pUsername.value||'').trim().toLowerCase();
+    if(!uname) return alert('Choose a username');
+    if(!usernameLocked){
+      const snap = await db.collection('users').where('username','==', uname).get();
+      if(!snap.empty) return alert('Username already taken');
+    }
+    await db.collection('users').doc(currentUser.uid).set({
+      username: uname,
+      displayName: pDisplay.value||'',
+    }, { merge: true });
+      });
+  </script>
+</body>
+</html>
