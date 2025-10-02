@@ -491,7 +491,7 @@
 
       // Join Now button click
       joinNow.addEventListener('click', () => {
-        window.location.href = 'login.html';
+        window.location.href = 'comingsoon.html';
         joinNow.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
         joinNow.disabled = true;
         auth.signInWithPopup(provider).catch(error => {
@@ -503,7 +503,7 @@
 
       // Go to Home button click
       goHomeBtn.addEventListener('click', () => {
-        window.location.href = 'home.html';
+       window.location.href = 'comingsoon.html';
       });
     });
   </script>
