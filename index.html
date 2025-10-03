@@ -334,12 +334,15 @@
 <body class="home-body">
 
   <header class="topbar">
-    <div class="logo">
-      <div class="logo img">
-      <img src="logo4.png" alt="SermoLink">
-    </div>
-    <div class="top-right">
-  </header>
+  <div class="logo">
+    <img src="logo4.png" alt="SermoLink">
+  </div>
+  <div class="top-right">
+    <button id="authBtn" class="btn"><i class="fas fa-user"></i> Sign In</button>
+    <button id="goHomeBtn" class="btn" style="display:none;"><i class="fas fa-home"></i> Home</button>
+  </div>
+</header>
+
 
   <main class="home-main">
     <div class="hero">
@@ -464,45 +467,36 @@
         }
       });
 
-      // Auth button click
-      authBtn.addEventListener('click', () => {
-        if (auth.currentUser) {
-          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing out...';
-          authBtn.disabled = true;
-          auth.signOut().catch(error => {
-            alert("Sign out error: " + error.message);
-            authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
-            authBtn.disabled = false;
-          });
-        } else {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-          authBtn.disabled = true;
-          auth.signInWithPopup(provider).catch(error => {
-            alert("Sign in error: " + error.message);
-            authBtn.innerHTML = '<i class="fas fa-user"></i> Sign In';
-            authBtn.disabled = false;
-          });
-        }
-      });
-
-      // Join Now button click
-      joinNow.addEventListener('click', () => {
-        window.location.href = 'comingsoon.html';
-        joinNow.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
-        joinNow.disabled = true;
-        auth.signInWithPopup(provider).catch(error => {
-          alert("Sign in error: " + error.message);
-          joinNow.innerHTML = '<i class="fas fa-arrow-right"></i> Join Now';
-          joinNow.disabled = false;
-        });
-      });
-
-      // Go to Home button click
-      goHomeBtn.addEventListener('click', () => {
-       window.location.href = 'comingsoon.html';
-      });
+     // Auth button click
+authBtn.addEventListener('click', () => {
+  if (auth.currentUser) {
+    // User is logged in → Sign out
+    authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing out...';
+    authBtn.disabled = true;
+    auth.signOut().catch(error => {
+      alert("Sign out error: " + error.message);
+      authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
+      authBtn.disabled = false;
     });
+  } else {
+    // User not logged in → send to login.html
+    window.location.href = 'comingsoon.html';
+  }
+});
+
+
+    // Join Now button click
+joinNow.addEventListener('click', () => {
+  joinNow.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+  joinNow.disabled = true;
+  window.location.href = 'comingsoon.html';
+});
+
+// Go to Home button click
+goHomeBtn.addEventListener('click', () => {
+  window.location.href = 'comingsoon.html';
+});
+    })
   </script>
 </body>
 </html>
